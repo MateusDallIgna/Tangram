@@ -7,8 +7,8 @@ public:
 	Shader(const char* VertexShader, const char* FragmentShader);	
 	~Shader();
 
-	void Bind();
-	void Unbind();
+	void Bind() const;
+	void Unbind() const;
 
 private:
 

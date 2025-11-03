@@ -4,7 +4,7 @@
 #include <glad.h>
 #include <GLFW/glfw3.h>
 
-Application::Application(int windowWidth, int windowHeight, const char* title) : m_Width(windowWidth), m_Height(windowHeight), m_Title(title){
+Application::Application(int windowWidth, int windowHeight, const char* title) :m_Width(windowWidth), m_Height(windowHeight), m_Title(title){
 }
 
 Application::~Application(){
@@ -52,10 +52,20 @@ void Application::MainLoop(){
 		glfwSwapBuffers(m_Window);
 	}
 }
+GLFWwindow* Application::GetWindow(){
+	return m_Window;
+}
+
+void Application::SetupGL(){
+	glViewport(0, 0, m_Width, m_Height);
+
+	//Back Ground Color
+	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+}
 
 void Application::Run(){
 	InitGLFW();
 	CreateGLFWWindow();
 	InitGLAD();
-	MainLoop();
+	SetupGL();
 }

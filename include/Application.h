@@ -11,6 +11,7 @@ public:
 	~Application();
 
 	void Run();
+	GLFWwindow* GetWindow();
 
 private:
 
@@ -18,6 +19,7 @@ private:
 	void InitGLAD();
 	void CreateGLFWWindow();
 	void MainLoop();
+	void SetupGL();
 
 	GLFWwindow* m_Window;
 	int m_Width;
