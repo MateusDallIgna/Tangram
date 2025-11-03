@@ -1,5 +1,7 @@
 #include "Layer.h" 
 #include "Rectangle.h"
+#include <GLFW/glfw3.h>
+#include <iostream>
 
 Layer::Layer(const char* vertPath, const char* fragPath) : m_Shader(vertPath, fragPath){
 //    Usaremos coordenadas "chumbadas" (hardcoded) por enquanto.
@@ -12,6 +14,12 @@ Layer::Layer(const char* vertPath, const char* fragPath) : m_Shader(vertPath, fr
 void Layer::OnRender(){
 	for(Shape* shape : m_Shape){
 		m_Renderer.Draw(shape->GetVAO(),shape->GetIBO(), m_Shader);
+	}
+}
+
+void Layer::OnUpdate(GLFWwindow* window){
+	if(glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS){
+		std::cout << "Mode 1: Drawn Rectangle Active" <<std::endl;
 	}
 }
 

@@ -23,6 +23,7 @@ int main(){
 
 		// renderer.Draw(vertexArray, shader);
 		layer.OnRender();
+		layer.OnUpdate(window.GetWindow());
 
 		glfwSwapBuffers(window.GetWindow());
 

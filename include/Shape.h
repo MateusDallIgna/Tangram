@@ -1,15 +1,16 @@
 #pragma once
-#include "BufferLayout.h"
+
+#include "IndexBuffer.h"
 #include "VertexArray.h"
-#include <vector>
 
-class Shape{
+class VertexArray;
+class IndexBuffer;
 
+class Shape {
 public:
+	virtual ~Shape(){}
 
-private:
-	std::vector<float> m_vertices;
-	BufferLayout m_BufferLayout;
-	VertexArray m_VertexArray ;
-
+	virtual VertexArray& GetVAO() const = 0;
+	
+	virtual IndexBuffer& GetIBO() const = 0;
 };

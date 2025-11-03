@@ -29,3 +29,4 @@ private:
 	std::vector <LayoutElement> m_Elements;
 	unsigned int m_Stride;
 };
+
