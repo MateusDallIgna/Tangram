@@ -1,25 +1,25 @@
 #include "Layer.h" 
+#include "Rectangle.h"
 
 Layer::Layer(const char* vertPath, const char* fragPath) : m_Shader(vertPath, fragPath){
+//    Usaremos coordenadas "chumbadas" (hardcoded) por enquanto.
+    Rectangle* rect = new Rectangle(-0.5f, -0.5f, 0.5f, 0.5f);
 
-	float vertices[] = {
-		-0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 
-		
-		0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 
-		
-		0.0f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f 
-	};
-
-	BufferLayout buffer;
-	buffer.PushFloat(2);
-	buffer.PushFloat(4);
-	
-	m_VertexArray.SetData(vertices, sizeof(vertices), &buffer);
-
+    // 2. Adicionar o ponteiro para este novo retângulo à nossa lista.
+    m_Shape.push_back(rect);
 };
 
 void Layer::OnRender(){
-	m_Renderer.Draw(m_VertexArray, m_Shader);
+	for(Shape* shape : m_Shape){
+		m_Renderer.Draw(shape->GetVAO(),shape->GetIBO(), m_Shader);
+	}
+}
+
+Layer::~Layer(){
+	for(Shape* shape : m_Shape){
+		delete shape;
+	}
 }
 
  
+	
