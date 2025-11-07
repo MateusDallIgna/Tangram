@@ -5,10 +5,10 @@
 Rectangle::Rectangle(float x1, float y1, float x2, float y2){
 
 	m_Vertices = {
-		x1,y1,0.0f,0.5f,0.5f,1.0f,
+		x1,y1,0.0f,0.1f,0.5f,1.0f,
 		x2,y1,1.0f,0.5f,0.0f,1.0f, 
 		x2,y2,0.2f,0.8f,0.0f,1.0f,
-		x1,y2,0.5f,0.8f,0.3f,1.0f
+		x1,y2,0.5f,0.8f,0.9f,1.0f
 	};
 
 	m_Indices = {

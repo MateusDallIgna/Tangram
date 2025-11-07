@@ -14,11 +14,14 @@ public:
 
 	void OnRender();
 	void OnUpdate(GLFWwindow* window);
+	void OnMouseButtonEvent(int button, int action, int mods, double mouseX, double mouseY);
 
 private:
 	Shader m_Shader;
 	Renderer m_Renderer;
 	std::vector<Shape*> m_Shape;
+	int m_CurrentMode;
+	Shape* m_CurrentDrawingShape;
 
 };
 
