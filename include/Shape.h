@@ -14,5 +14,5 @@ public:
 	
 	virtual IndexBuffer& GetIBO() const = 0;
 
-	virtual void UpdateVertices(double mouseX, double mouseY);
+	virtual void UpdateVertices(double mouseX, double mouseY) = 0;
 };
