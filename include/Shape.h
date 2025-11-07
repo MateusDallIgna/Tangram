@@ -13,4 +13,6 @@ public:
 	virtual VertexArray& GetVAO() const = 0;
 	
 	virtual IndexBuffer& GetIBO() const = 0;
+
+	virtual void UpdateVertices(double mouseX, double mouseY);
 };

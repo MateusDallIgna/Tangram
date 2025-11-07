@@ -12,6 +12,8 @@ public:
 
 	void Run();
 	GLFWwindow* GetWindow();
+	int GetWidth();
+	int GetHeight();
 
 private:
 

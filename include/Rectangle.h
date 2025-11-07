@@ -14,7 +14,8 @@ public:
 	~Rectangle();
 
 	VertexArray& GetVAO() const;
-	IndexBuffer& GetIBO() const;
+	IndexBuffer& GetIBO() const; 
+	void UpdateVertices(double mouseX, double mouseY);
 
 private:
 
@@ -23,6 +24,9 @@ private:
 
 	BufferLayout m_BufferLayout;
 
-	 VertexArray* m_VertexArray;
-	 IndexBuffer* m_IndexBuffer;
+	VertexArray* m_VertexArray;
+	IndexBuffer* m_IndexBuffer;
+
+	float m_AnchorX;
+	float m_AnchorY;
 };

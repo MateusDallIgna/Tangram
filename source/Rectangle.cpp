@@ -2,7 +2,7 @@
 #include "IndexBuffer.h"
 #include "VertexArray.h"
 
-Rectangle::Rectangle(float x1, float y1, float x2, float y2){
+Rectangle::Rectangle(float x1, float y1, float x2, float y2) : m_AnchorX(x1) , m_AnchorY(y1){
 
 	m_Vertices = {
 		x1,y1,0.0f,0.1f,0.5f,1.0f,
@@ -24,6 +24,20 @@ Rectangle::Rectangle(float x1, float y1, float x2, float y2){
 	m_VertexArray->SetData(m_Vertices.data(), m_Vertices.size()*sizeof(float) , &m_BufferLayout);
 
 	m_IndexBuffer = new IndexBuffer(m_Indices.data(), m_Indices.size());
+
+}
+
+void Rectangle::UpdateVertices(double mouseX, double mouseY){
+
+
+	m_Vertices = {
+		(float)m_AnchorX, (float)m_AnchorY, 0.0f,0.1f,0.5f,1.0f,
+		(float)mouseX, (float)m_AnchorY, 1.0f,0.5f,0.0f,1.0f,  
+		(float)mouseX, (float)mouseY, 0.2f,0.8f,0.0f,1.0f,
+		(float)m_AnchorX, (float)mouseY, 0.5f,0.8f,0.9f,1.0f
+	};
+
+	m_VertexArray->SetData(m_Vertices.data(), m_Vertices.size()*sizeof(float) , &m_BufferLayout);
 
 }
 

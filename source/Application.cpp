@@ -52,8 +52,17 @@ void Application::MainLoop(){
 		glfwSwapBuffers(m_Window);
 	}
 }
+
 GLFWwindow* Application::GetWindow(){
 	return m_Window;
+}
+
+int Application::GetHeight(){
+	return m_Height;
+}
+
+int Application::GetWidth(){
+	return m_Width;
 }
 
 void Application::SetupGL(){
