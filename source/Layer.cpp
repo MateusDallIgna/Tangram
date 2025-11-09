@@ -1,5 +1,6 @@
 #include "Layer.h" 
 #include "Application.h"
+#include "Circle.h"
 #include "Rectangle.h"
 #include <GLFW/glfw3.h>
 #include "Triangle.h"
@@ -58,6 +59,12 @@ void Layer::OnKeyEvent(int key, int scancode, int action, int mods){
             break;
         }
 
+		case GLFW_KEY_3: {
+			m_CurrentMode = 3;
+			std::cout << "Mode 3: Drawn Cirvle Active" <<std::endl;
+			break;
+		}
+
 		case GLFW_KEY_ESCAPE:{
             m_CurrentMode = 0;
             break;
@@ -91,6 +98,8 @@ void Layer::OnMouseButtonEvent(int button, int action, int mods, double mouseX, 
 				   }
 
 			case 3:{
+					   m_CurrentDrawingShape = new Circle(ndcX, ndcY , ndcX, ndcY);
+					   m_Shape.push_back(m_CurrentDrawingShape);
 
 					   break;
 				   }

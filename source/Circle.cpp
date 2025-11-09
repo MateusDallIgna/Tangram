@@ -1,0 +1,89 @@
+#include "Circle.h"
+#include "VertexArray.h"
+#include "IndexBuffer.h"
+#include <cmath>
+
+Circle::Circle(float x1, float y1, float x2, float y2) : m_AnchorX(x1) , m_AnchorY(y1){
+
+	float sliceDegree = (10.0f * (float)M_PI) / 180.0f;
+
+	m_Radius = sqrt((x2-x1)*(x2-x1) + (y2-y1)*(y2-y1));
+
+	m_Vertices = {
+		m_AnchorX, m_AnchorY, 0.0f,0.1f,0.5f,1.0f
+	};
+
+	for (int i = 0; i <36; i++){
+		float currentDegree = float(i) * sliceDegree;
+		
+		float x = m_AnchorX + m_Radius * cos(currentDegree);
+        float y = m_AnchorY + m_Radius * sin(currentDegree);
+
+        m_Vertices.push_back(x);
+        m_Vertices.push_back(y);
+        m_Vertices.push_back(1.0f);
+        m_Vertices.push_back(0.0f);
+        m_Vertices.push_back(1.0f);
+        m_Vertices.push_back(1.0f);
+	}
+
+	for (int i = 1 ; i < 36 ; i++){
+		m_Indices.push_back(0);
+		m_Indices.push_back(i);
+		m_Indices.push_back(i+1);
+	}
+	m_Indices.push_back(0);
+	m_Indices.push_back(36);
+	m_Indices.push_back(1);
+
+    m_BufferLayout.PushFloat(2);
+    m_BufferLayout.PushFloat(4);
+
+    m_VertexArray = new VertexArray();
+
+	m_VertexArray->SetData(m_Vertices.data(), m_Vertices.size()*sizeof(float) , &m_BufferLayout);
+
+    m_IndexBuffer = new IndexBuffer(m_Indices.data(), m_Indices.size());
+
+}
+
+void Circle::UpdateVertices(double mouseX, double mouseY){
+
+	float sliceDegree = (10.0f * (float)M_PI) / 180.0f;
+
+	m_Radius = sqrt((m_AnchorX - (float)mouseX)*(m_AnchorX - (float)mouseX) + (m_AnchorY - (float)mouseY)*(m_AnchorY - (float)mouseY));
+
+	m_Vertices = {
+		m_AnchorX, m_AnchorY, 0.0f,0.1f,0.5f,1.0f
+	};
+
+	for (int i = 0; i <36; i++){
+		float currentDegree = float(i) * sliceDegree;
+		
+		float x = m_AnchorX + m_Radius * cos(currentDegree);
+        float y = m_AnchorY + m_Radius * sin(currentDegree);
+
+        m_Vertices.push_back(x);
+        m_Vertices.push_back(y);
+        m_Vertices.push_back(1.0f);
+        m_Vertices.push_back(0.0f);
+        m_Vertices.push_back(1.0f);
+        m_Vertices.push_back(1.0f);
+	}
+
+	m_VertexArray->SetData(m_Vertices.data(), m_Vertices.size()*sizeof(float) , &m_BufferLayout);
+
+}
+
+VertexArray& Circle::GetVAO() const{
+	return *m_VertexArray;
+}
+
+IndexBuffer& Circle::GetIBO() const{
+	return *m_IndexBuffer;
+} 
+
+Circle::~Circle(){
+	delete m_VertexArray;
+	delete m_IndexBuffer;
+}
