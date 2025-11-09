@@ -16,6 +16,14 @@ void MouseButtonCallBack(GLFWwindow* window, int button, int action, int mods){
 	}
 }
 
+void KeyCallBack(GLFWwindow* window, int key, int scancode, int action, int mods){
+    Layer* layer = (Layer*)glfwGetWindowUserPointer(window);
+
+    if (layer != nullptr){
+        layer->OnKeyEvent(key, scancode, action, mods);
+    }
+}
+
 int main(){
 	Application window (1280, 720 , "My_Window");
 	window.Run();
@@ -25,6 +33,9 @@ int main(){
 	glfwSetWindowUserPointer(window.GetWindow(), &layer);
 
 	glfwSetMouseButtonCallback(window.GetWindow(), MouseButtonCallBack);
+
+	glfwSetKeyCallback(window.GetWindow(), KeyCallBack);
+
 
 	while(!glfwWindowShouldClose(window.GetWindow())){
 		glClear(GL_COLOR_BUFFER_BIT);

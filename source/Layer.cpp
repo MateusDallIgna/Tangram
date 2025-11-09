@@ -2,6 +2,7 @@
 #include "Application.h"
 #include "Rectangle.h"
 #include <GLFW/glfw3.h>
+#include "Triangle.h"
 #include <iostream>
 
 Layer::Layer(const char* vertPath, const char* fragPath, Application* windowContext) : m_Shader(vertPath, fragPath), m_CurrentMode(0), m_CurrentDrawingShape(nullptr), m_WindowContext(windowContext){
@@ -25,12 +26,7 @@ void Layer::ConvertScreenToNDC(double mouseX, double mouseY, float& outX, float&
 }
 
 void Layer::OnUpdate(GLFWwindow* window){
-	if(glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS){
 
-		m_CurrentMode = 1;
-		std::cout << "Mode 1: Drawn Rectangle Active" <<std::endl;
-
-	}
 	if (m_CurrentDrawingShape != nullptr){
 		double mouseX, mouseY;
 		float outX, outY;
@@ -40,6 +36,35 @@ void Layer::OnUpdate(GLFWwindow* window){
 		m_CurrentDrawingShape->UpdateVertices(outX, outY);
 		
 	}
+}
+
+void Layer::OnKeyEvent(int key, int scancode, int action, int mods){
+
+	if (!(action == GLFW_PRESS)){
+        return;
+    }
+
+	switch (key) {
+
+        case GLFW_KEY_1:{
+            m_CurrentMode = 1;
+            std::cout << "Mode 1: Drawn Rectangle Active" <<std::endl;
+            break;
+        }
+
+        case GLFW_KEY_2:{
+            m_CurrentMode = 2;
+            std::cout << "Mode 2: Drawn Triangle Active" <<std::endl;
+            break;
+        }
+
+		case GLFW_KEY_ESCAPE:{
+            m_CurrentMode = 0;
+            break;
+		}
+	
+	}
+    
 }
 
 void Layer::OnMouseButtonEvent(int button, int action, int mods, double mouseX, double mouseY){
@@ -59,6 +84,8 @@ void Layer::OnMouseButtonEvent(int button, int action, int mods, double mouseX, 
 				   }
 
 			case 2:{
+                       m_CurrentDrawingShape = new Triangle(ndcX, ndcY, ndcX, ndcY);
+                       m_Shape.push_back(m_CurrentDrawingShape);
 
 					   break;
 				   }

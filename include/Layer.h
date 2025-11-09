@@ -17,6 +17,7 @@ public:
 	void OnRender();
 	void OnUpdate(GLFWwindow* window);
 	void OnMouseButtonEvent(int button, int action, int mods, double mouseX, double mouseY);
+	void OnKeyEvent(int key, int scancode, int action, int mods);
 	void ConvertScreenToNDC(double mouseX, double mouseY, float& outX, float& outY);
 
 private:
