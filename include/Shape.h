@@ -1,5 +1,6 @@
 #pragma once
 
+#include "BufferLayout.h"
 #include "IndexBuffer.h"
 #include "VertexArray.h"
 
@@ -15,4 +16,11 @@ public:
 	virtual IndexBuffer& GetIBO() const = 0;
 
 	virtual void UpdateVertices(double mouseX, double mouseY) = 0;
+
+	virtual GLenum GetDrawnMode() = 0;
+
+	virtual void AddPoint(double mouseX, double mouseY) = 0;
+
+	virtual void FinalizeShape() = 0;
+
 };

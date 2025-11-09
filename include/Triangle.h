@@ -9,12 +9,15 @@ class Triangle : public Shape{
 
 public:
 
-    Triangle(float x1, float y1, float x2, float y2);
+    Triangle(float x1, float y1, float x2, float y2, bool m_IsFilled);
     ~Triangle();
 
 	VertexArray& GetVAO() const;
     IndexBuffer& GetIBO() const;
 	void UpdateVertices(double mouseX, double mouseY);
+	GLenum GetDrawnMode();
+	void AddPoint(double x, double y);
+	void FinalizeShape();
 
 private:
 
@@ -28,4 +31,6 @@ private:
 
 	float m_AnchorX;
     float m_AnchorY;
+
+	bool m_ShapeIsFilled;
 };

@@ -3,7 +3,7 @@
 #include "IndexBuffer.h"
 #include <cmath>
 
-Circle::Circle(float x1, float y1, float x2, float y2) : m_AnchorX(x1) , m_AnchorY(y1){
+Circle::Circle(float x1, float y1, float x2, float y2, bool m_IsFilled) : m_AnchorX(x1) , m_AnchorY(y1), m_ShapeIsFilled(m_IsFilled){
 
 	float sliceDegree = (10.0f * (float)M_PI) / 180.0f;
 
@@ -27,14 +27,27 @@ Circle::Circle(float x1, float y1, float x2, float y2) : m_AnchorX(x1) , m_Ancho
         m_Vertices.push_back(1.0f);
 	}
 
-	for (int i = 1 ; i < 36 ; i++){
+
+	//DEFINING THE INDICES FOR WHETHER THE CIRCLE IS FILLED OR NOT.//
+	if(m_ShapeIsFilled){
+
+		for (int i = 1 ; i < 36 ; i++){
+			m_Indices.push_back(0);
+			m_Indices.push_back(i);
+			m_Indices.push_back(i+1);
+		}
 		m_Indices.push_back(0);
-		m_Indices.push_back(i);
-		m_Indices.push_back(i+1);
+		m_Indices.push_back(36);
+		m_Indices.push_back(1);
 	}
-	m_Indices.push_back(0);
-	m_Indices.push_back(36);
-	m_Indices.push_back(1);
+
+	else{
+		for(int i = 1; i <= 36; i++){
+			m_Indices.push_back(i);
+		}
+		m_Indices.push_back(1);
+	}
+	//--------------------------------------------------------------//
 
     m_BufferLayout.PushFloat(2);
     m_BufferLayout.PushFloat(4);
@@ -44,7 +57,6 @@ Circle::Circle(float x1, float y1, float x2, float y2) : m_AnchorX(x1) , m_Ancho
 	m_VertexArray->SetData(m_Vertices.data(), m_Vertices.size()*sizeof(float) , &m_BufferLayout);
 
     m_IndexBuffer = new IndexBuffer(m_Indices.data(), m_Indices.size());
-
 }
 
 void Circle::UpdateVertices(double mouseX, double mouseY){
@@ -75,6 +87,17 @@ void Circle::UpdateVertices(double mouseX, double mouseY){
 
 }
 
+
+GLenum Circle::GetDrawnMode(){
+	if(m_ShapeIsFilled){
+		return GL_TRIANGLES;
+	}
+	else{
+		return GL_LINE_LOOP;
+	}
+
+}
+
 VertexArray& Circle::GetVAO() const{
 	return *m_VertexArray;
 }
@@ -87,3 +110,7 @@ Circle::~Circle(){
 	delete m_VertexArray;
 	delete m_IndexBuffer;
 }
+
+void Circle::AddPoint(double x, double y){}
+
+void Circle::FinalizeShape(){}

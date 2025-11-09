@@ -3,10 +3,12 @@ class IndexBuffer{
 
 public:
 
-	IndexBuffer(const unsigned int* data, unsigned int count); ~IndexBuffer();
+	IndexBuffer(const unsigned int* data, unsigned int count);
+	~IndexBuffer();
 	void Bind() const;
 	void Unbind() const;
 	unsigned int GetCount() const;
+	void SetData(const unsigned int* data, unsigned int count);
 
 
 private:

@@ -3,7 +3,7 @@
 #include "VertexArray.h"
 #include <algorithm>
 
-Triangle::Triangle(float x1, float y1, float x2, float y2) : m_AnchorX(x1) , m_AnchorY(y1){
+Triangle::Triangle(float x1, float y1, float x2, float y2, bool m_IsFilled) : m_AnchorX(x1) , m_AnchorY(y1), m_ShapeIsFilled(m_IsFilled){
 
 	float leftX = std::min(x1, x2);
     float rightX = std::max(x1, x2);
@@ -53,6 +53,17 @@ void Triangle::UpdateVertices(double mouseX, double mouseY){
 	m_VertexArray->SetData(m_Vertices.data(), m_Vertices.size()*sizeof(float) , &m_BufferLayout);
 }
 
+
+GLenum Triangle::GetDrawnMode(){
+	if(m_ShapeIsFilled){
+		return GL_TRIANGLES;
+	}
+	else{
+		return GL_LINE_LOOP;
+	}
+
+}
+
 VertexArray& Triangle::GetVAO() const{
     return *m_VertexArray;
 }
@@ -65,3 +76,6 @@ Triangle::~Triangle(){
     delete m_VertexArray;
     delete m_IndexBuffer;
 }
+
+void Triangle::AddPoint(double x, double y){}
+void Triangle::FinalizeShape(){}

@@ -10,12 +10,15 @@ class Circle : public Shape{
 
 public:
 	
-	Circle(float x1, float y1, float x2, float y2);
+	Circle(float x1, float y1, float x2, float y2, bool m_IsFilled);
 	~Circle();
 
 	VertexArray& GetVAO() const;
     IndexBuffer& GetIBO() const;
 	void UpdateVertices(double mouseX, double mouseY);
+	GLenum GetDrawnMode();
+	void AddPoint(double x, double y);
+	void FinalizeShape();
 
 private:
 
@@ -30,6 +33,8 @@ private:
 	float m_AnchorX;
     float m_AnchorY;
 	float m_Radius;
+
+	bool m_ShapeIsFilled;
 
 
 };

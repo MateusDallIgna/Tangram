@@ -21,12 +21,18 @@ public:
 	void ConvertScreenToNDC(double mouseX, double mouseY, float& outX, float& outY);
 
 private:
+
 	Shader m_Shader;
 	Renderer m_Renderer;
+
 	std::vector<Shape*> m_Shape;
+
 	int m_CurrentMode;
+
 	Shape* m_CurrentDrawingShape;
 	Application* m_WindowContext;
+
+	bool m_IsFilled;
 
 };
 

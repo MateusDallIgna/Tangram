@@ -1,8 +1,9 @@
 #include "Rectangle.h"
+#include "BufferLayout.h"
 #include "IndexBuffer.h"
 #include "VertexArray.h"
 
-Rectangle::Rectangle(float x1, float y1, float x2, float y2) : m_AnchorX(x1) , m_AnchorY(y1){
+Rectangle::Rectangle(float x1, float y1, float x2, float y2, bool m_IsFilled) : m_AnchorX(x1) , m_AnchorY(y1), m_ShapeIsFilled(m_IsFilled){
 
 	m_Vertices = {
 		x1,y1,0.0f,0.1f,0.5f,1.0f,
@@ -41,6 +42,16 @@ void Rectangle::UpdateVertices(double mouseX, double mouseY){
 
 }
 
+GLenum Rectangle::GetDrawnMode(){
+	if(m_ShapeIsFilled){
+		return GL_TRIANGLES;
+	}
+	else{
+		return GL_LINE_LOOP;
+	}
+
+}
+
 VertexArray& Rectangle::GetVAO() const{
 	return *m_VertexArray;
 }
@@ -55,3 +66,5 @@ Rectangle::~Rectangle(){
 }
 
 
+void Rectangle::AddPoint(double x, double y){}
+void::Rectangle::FinalizeShape(){}
