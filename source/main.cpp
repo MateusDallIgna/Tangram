@@ -28,7 +28,7 @@ int main(){
 	Application window (1280, 720 , "My_Window");
 	window.Run();
 
-	Layer layer ("../include/shaders/vertex_shader.glsl", "../include/shaders/fragment_shader.glsl", &window);
+	Layer layer ("../shaders/vertex_shader.glsl", "../shaders/fragment_shader.glsl", &window);
 
 	glfwSetWindowUserPointer(window.GetWindow(), &layer);
 

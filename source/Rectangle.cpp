@@ -2,8 +2,10 @@
 #include "BufferLayout.h"
 #include "IndexBuffer.h"
 #include "VertexArray.h"
+#include <glm/glm.hpp>                    
+#include <glm/gtc/matrix_transform.hpp>  
 
-Rectangle::Rectangle(float x1, float y1, float x2, float y2, bool m_IsFilled) : m_AnchorX(x1) , m_AnchorY(y1), m_CurrentX(x2), m_CurrentY(y2), m_ShapeIsFilled(m_IsFilled){
+Rectangle::Rectangle(float x1, float y1, float x2, float y2, bool m_IsFilled) : m_AnchorX(x1) , m_AnchorY(y1), m_CurrentX(x2), m_CurrentY(y2), m_ShapeIsFilled(m_IsFilled), m_ModelMatrix(glm::mat4(1.0f)){
 
 	m_Vertices = {
 		x1,y1,1.0f,0.0f,0.0f,1.0f,
@@ -82,6 +84,18 @@ VertexArray& Rectangle::GetVAO() const{
 
 IndexBuffer& Rectangle::GetIBO() const{
 return *m_IndexBuffer;
+}
+
+const glm::mat4& Rectangle::GetModelMatrix() const{
+    return m_ModelMatrix;
+}
+
+void Rectangle::Translate(float dx, float dy)
+{
+    glm::vec3 translationVector(dx, dy, 0.0f);
+
+	m_ModelMatrix = glm::translate(m_ModelMatrix, translationVector);
+
 }
 
 Rectangle::~Rectangle(){

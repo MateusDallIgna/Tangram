@@ -2,8 +2,10 @@
 #include "VertexArray.h"
 #include "IndexBuffer.h"
 #include <cmath>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
-Circle::Circle(float x1, float y1, float x2, float y2, bool m_IsFilled) : m_AnchorX(x1) , m_AnchorY(y1), m_ShapeIsFilled(m_IsFilled){
+Circle::Circle(float x1, float y1, float x2, float y2, bool m_IsFilled) : m_AnchorX(x1) , m_AnchorY(y1), m_ShapeIsFilled(m_IsFilled), m_ModelMatrix(glm::mat4(1.0f)){
 
 	float sliceDegree = (10.0f * (float)M_PI) / 180.0f;
 
@@ -121,6 +123,16 @@ VertexArray& Circle::GetVAO() const{
 IndexBuffer& Circle::GetIBO() const{
 	return *m_IndexBuffer;
 } 
+
+const glm::mat4& Circle::GetModelMatrix() const{
+    return m_ModelMatrix;
+}
+
+void Circle::Translate(float dx, float dy) {
+    glm::vec3 translationVector(dx, dy, 0.0f);
+
+    m_ModelMatrix = glm::translate(m_ModelMatrix, translationVector); 
+}
 
 Circle::~Circle(){
 	delete m_VertexArray;

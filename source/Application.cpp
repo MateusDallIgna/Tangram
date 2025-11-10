@@ -1,5 +1,6 @@
 #include "Application.h"
 #include <cstdlib>
+#include <glm/ext/matrix_clip_space.hpp>
 #include <iostream>
 #include <glad.h>
 #include <GLFW/glfw3.h>
@@ -70,6 +71,21 @@ void Application::SetupGL(){
 
 	//Back Ground Color
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+
+	float aspectRatio = (float)m_Width / (float)m_Height;
+    float worldHeight = 10.0f; 
+    float worldWidth = worldHeight * aspectRatio;
+
+    float left   = -worldWidth / 2.0f;
+    float right  =  worldWidth / 2.0f;
+    float bottom = -worldHeight / 2.0f;
+    float top    =  worldHeight / 2.0f;
+
+    m_ProjectionMatrix = glm::ortho(left, right, bottom, top, -1.0f, 1.0f);
+}
+
+const glm::mat4& Application::GetProjectionMatrix() const{
+    return m_ProjectionMatrix;
 }
 
 void Application::Run(){

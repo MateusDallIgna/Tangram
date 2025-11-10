@@ -39,7 +39,7 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath) {
 	if (!success)
 	{
 		glGetShaderInfoLog(VertexShader, 512, NULL, infoLog);
-		std::cout << "ERRO::SHADER::VERTEX::COMPILACAO_FALHOU\n" << infoLog << std::endl;
+		std::cout << "ERRO::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
 	}
     
     FragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
@@ -50,7 +50,7 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath) {
 	if (!success)
 	{
 		glGetShaderInfoLog(FragmentShader, 512, NULL, infoLog);
-		std::cout << "ERRO::SHADER::FRAGMENT::COMPILACAO_FALHOU\n" << infoLog << std::endl;
+		std::cout << "ERRO::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
 	}
 
     m_ID = glCreateProgram(); 
@@ -61,7 +61,7 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath) {
 	glGetProgramiv(m_ID, GL_LINK_STATUS, &success);
 	if (!success) {
 		glGetProgramInfoLog(m_ID, 512, NULL, infoLog);
-		std::cout << "ERRO::SHADER::PROGRAMA::LINKAGEM_FALHOU\n" << infoLog << std::endl;
+		std::cout << "ERRO::SHADER::PROGRAM::LINK_FAILED\n" << infoLog << std::endl;
 	}
 
     glDeleteShader(VertexShader);
@@ -78,4 +78,19 @@ void Shader::Unbind() const {
 
 Shader::~Shader() {
     glDeleteProgram(m_ID);
+}
+
+int GetUniformLocation(unsigned int shaderID, const std::string& name) {
+    int location = glGetUniformLocation(shaderID, name.c_str());
+    if (location == -1) {
+        std::cerr << "Warning: Uniform '" << name << "' Does't found" << std::endl;
+    }
+    return location;
+}
+
+void Shader::SetUniformMat4f(const std::string& name, const glm::mat4& matrix) {
+
+    int location = GetUniformLocation(m_ID, name);
+
+    glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
 }

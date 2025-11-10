@@ -8,14 +8,25 @@
 #include <iostream>
 #include <algorithm>
 
-Layer::Layer(const char* vertPath, const char* fragPath, Application* windowContext) : m_Shader(vertPath, fragPath), m_CurrentMode(0), m_CurrentDrawingShape(nullptr), m_WindowContext(windowContext), m_IsFilled(true){
+Layer::Layer(const char* vertPath, const char* fragPath, Application* windowContext) : m_Shader(vertPath, fragPath), m_CurrentMode(0), m_CurrentDrawingShape(nullptr), m_WindowContext(windowContext), m_IsFilled(true),m_ViewMatrix(glm::mat4(1.0f)), m_IsTranslating(false), m_LastMouseX(0.0), m_LastMouseY(0.0){
 
 };
 
 void Layer::OnRender(){
 
+	m_Shader.Bind();
+
+	const glm::mat4& proj = m_WindowContext->GetProjectionMatrix();
+	const glm::mat4& view = m_ViewMatrix; 
+
+	m_Shader.SetUniformMat4f("u_Projection", proj);
+	m_Shader.SetUniformMat4f("u_View", view);
+
 	for(Shape* shape : m_Shape){
-		m_Renderer.Draw(shape->GetVAO(),shape->GetIBO(), m_Shader, shape->GetDrawnMode());
+		const glm::mat4& model = shape->GetModelMatrix();
+
+		m_Shader.SetUniformMat4f("u_Model", model);
+		m_Renderer.Draw(shape->GetVAO(),shape->GetIBO(),shape->GetDrawnMode());
 	}
 }
 
@@ -160,6 +171,12 @@ void Layer::OnMouseButtonEvent(int button, int action, int mods, double mouseX, 
 	float ndcX, ndcY;
 	ConvertScreenToNDC(mouseX, mouseY, ndcX, ndcY);
 
+	if (action == GLFW_RELEASE){
+		if(m_IsTranslating){
+            m_IsTranslating = false;
+		}
+    }
+
 	if (m_CurrentMode == 4){
 		if(action != GLFW_PRESS){
 			return;
@@ -198,7 +215,14 @@ void Layer::OnMouseButtonEvent(int button, int action, int mods, double mouseX, 
 						   break;
 					   }
 
-				   break;
+				   if (!m_SelectedShape.empty()) {
+					   m_IsTranslating = true;
+
+					   m_LastMouseX = ndcX; 
+					   m_LastMouseY = ndcY;
+				   }
+
+				   break; 
 			   }
 
 		case 1:{

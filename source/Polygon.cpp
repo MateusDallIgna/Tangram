@@ -7,8 +7,10 @@
 #include <GLFW/glfw3.h> 
 #include <GL/glu.h>
 #include <iostream>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
-Polygon::Polygon(float x1, float y1, bool m_IsFilled) : m_AnchorX(x1), m_AnchorY(y1), m_ShapeIsFilled(m_IsFilled), m_IsFinalized(false){
+Polygon::Polygon(float x1, float y1, bool m_IsFilled) : m_AnchorX(x1), m_AnchorY(y1), m_ShapeIsFilled(m_IsFilled), m_IsFinalized(false), m_ModelMatrix(glm::mat4(1.0f)){
     m_Vertices = {
         m_AnchorX, m_AnchorY, 0.0f, 0.0f, 0.0f, 1.0f
     };
@@ -53,6 +55,16 @@ VertexArray& Polygon::GetVAO() const{
 
 IndexBuffer& Polygon::GetIBO() const{
 	return *m_IndexBuffer; 
+}
+
+const glm::mat4& Polygon::GetModelMatrix() const{
+    return m_ModelMatrix;
+}
+
+void Polygon::Translate(float dx, float dy) {
+    glm::vec3 translationVector(dx, dy, 0.0f);
+
+    m_ModelMatrix = glm::translate(m_ModelMatrix, translationVector); 
 }
 
 void Polygon::UpdateVertices(double mouseX, double mouseY){
@@ -117,24 +129,20 @@ void Polygon::AddTessVertex(void* vertex_data){
 // ------------------------------------------------------------
 // Tesselator callbacks (GLU)
 // ------------------------------------------------------------
-static void  tess_begin_callback(GLenum type, void* polygon_data)
-{
+static void  tess_begin_callback(GLenum type, void* polygon_data){
     std::cout << "Tesselator: Starting mode" << type << std::endl;
 }
 
-static void  tess_vertex_callback(void* vertex_data, void* polygon_data)
-{
+static void  tess_vertex_callback(void* vertex_data, void* polygon_data){
     Polygon* self = (Polygon*)polygon_data;
     if (self) self->AddTessVertex(vertex_data);
 }
 
-static void  tess_end_callback(void* polygon_data)
-{
+static void  tess_end_callback(void* polygon_data){
     std::cout << "Tesselator: End of outline" << std::endl;
 }
 
-static void  tess_error_callback(GLenum errorCode, void* polygon_data)
-{
+static void  tess_error_callback(GLenum errorCode, void* polygon_data){
     std::cerr << "Erro on Tesselator: " << gluErrorString(errorCode) << std::endl;
 }
 
