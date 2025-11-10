@@ -10,7 +10,7 @@ Circle::Circle(float x1, float y1, float x2, float y2, bool m_IsFilled) : m_Anch
 	m_Radius = sqrt((x2-x1)*(x2-x1) + (y2-y1)*(y2-y1));
 
 	m_Vertices = {
-		m_AnchorX, m_AnchorY, 0.0f,0.1f,0.5f,1.0f
+		m_AnchorX, m_AnchorY, 0.0f,0.0f,1.0f,1.0f
 	};
 
 	for (int i = 0; i <36; i++){
@@ -19,9 +19,9 @@ Circle::Circle(float x1, float y1, float x2, float y2, bool m_IsFilled) : m_Anch
 		float x = m_AnchorX + m_Radius * cos(currentDegree);
         float y = m_AnchorY + m_Radius * sin(currentDegree);
 
-        m_Vertices.push_back(x);
+m_Vertices.push_back(x);
         m_Vertices.push_back(y);
-        m_Vertices.push_back(1.0f);
+        m_Vertices.push_back(0.0f);
         m_Vertices.push_back(0.0f);
         m_Vertices.push_back(1.0f);
         m_Vertices.push_back(1.0f);
@@ -66,7 +66,7 @@ void Circle::UpdateVertices(double mouseX, double mouseY){
 	m_Radius = sqrt((m_AnchorX - (float)mouseX)*(m_AnchorX - (float)mouseX) + (m_AnchorY - (float)mouseY)*(m_AnchorY - (float)mouseY));
 
 	m_Vertices = {
-		m_AnchorX, m_AnchorY, 0.0f,0.1f,0.5f,1.0f
+		m_AnchorX, m_AnchorY, 0.0f,0.0f,1.0f,1.0f
 	};
 
 	for (int i = 0; i <36; i++){
@@ -77,7 +77,7 @@ void Circle::UpdateVertices(double mouseX, double mouseY){
 
         m_Vertices.push_back(x);
         m_Vertices.push_back(y);
-        m_Vertices.push_back(1.0f);
+        m_Vertices.push_back(0.0f);
         m_Vertices.push_back(0.0f);
         m_Vertices.push_back(1.0f);
         m_Vertices.push_back(1.0f);
@@ -96,6 +96,22 @@ GLenum Circle::GetDrawnMode(){
 		return GL_LINE_LOOP;
 	}
 
+}
+
+void Circle::SetColor(float r, float g, float b){
+    
+	for (size_t i = 0; i < m_Vertices.size(); i+=6){
+        m_Vertices[i+2] = r;
+        m_Vertices[i+3] = g;
+        m_Vertices[i+4] = b;
+		m_Vertices[i+5] = 1.0f;
+    }
+	m_VertexArray->SetData(m_Vertices.data(), m_Vertices.size()*sizeof(float) , &m_BufferLayout);
+}
+
+bool Circle::IsInside(float ndcX, float ndcY) const{
+
+	return (sqrt((m_AnchorX - ndcX)*(m_AnchorX - ndcX) + (m_AnchorY - ndcY)*(m_AnchorY - ndcY)) <= m_Radius);
 }
 
 VertexArray& Circle::GetVAO() const{

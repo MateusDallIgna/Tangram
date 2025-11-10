@@ -15,10 +15,14 @@ public:
 
 	VertexArray& GetVAO() const;
 	IndexBuffer& GetIBO() const; 
+
 	void UpdateVertices(double mouseX, double mouseY);
 	GLenum GetDrawnMode();
 	void AddPoint(double x, double y);
 	void FinalizeShape();
+
+	void SetColor(float r, float g, float b);
+    bool IsInside(float ndcX, float ndcY) const;
 
 private:
 
@@ -32,6 +36,10 @@ private:
 
 	float m_AnchorX;
 	float m_AnchorY;
+
+	float m_CurrentX;
+    float m_CurrentY;
+
 
 	bool m_ShapeIsFilled;
 };

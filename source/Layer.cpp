@@ -6,6 +6,7 @@
 #include <GLFW/glfw3.h>
 #include "Triangle.h"
 #include <iostream>
+#include <algorithm>
 
 Layer::Layer(const char* vertPath, const char* fragPath, Application* windowContext) : m_Shader(vertPath, fragPath), m_CurrentMode(0), m_CurrentDrawingShape(nullptr), m_WindowContext(windowContext), m_IsFilled(true){
 
@@ -59,6 +60,75 @@ void Layer::OnKeyEvent(int key, int scancode, int action, int mods){
 			break;
 		}
 
+		case GLFW_KEY_K:{
+
+			if (m_SelectedShape.empty()){ 
+				break; 
+			}
+			for (Shape* shape : m_SelectedShape) {
+				shape->SetColor(0.0f, 0.0f, 0.0f); 
+			}
+			std::cout << "The color of the selected objects has been changed to BLACK." << std::endl;
+			break;
+		}
+
+		case GLFW_KEY_R:{
+
+			if (m_SelectedShape.empty()){ 
+				break; 
+			}
+			for (Shape* shape : m_SelectedShape) {
+				shape->SetColor(1.0f, 0.0f, 0.0f); 
+			}
+			std::cout << "The color of the selected objects has been changed to RED." << std::endl;
+			break;
+		}
+
+		case GLFW_KEY_G:{
+
+			if (m_SelectedShape.empty()){ 
+				break; 
+			}
+			for (Shape* shape : m_SelectedShape) {
+				shape->SetColor(0.0f, 1.0f, 0.0f); 
+			}
+			std::cout << "The color of the selected objects has been changed to GREEN." << std::endl;
+			break;
+		}
+
+		case GLFW_KEY_B:{
+
+			if (m_SelectedShape.empty()){ 
+				break; 
+			}
+			for (Shape* shape : m_SelectedShape) {
+				shape->SetColor(0.0f, 0.0f, 1.0f); 
+			}
+			std::cout << "The color of the selected objects has been changed to BLUE." << std::endl;
+			break;
+		}
+
+		case GLFW_KEY_BACKSPACE:{
+
+			if(!(m_SelectedShape.empty())){
+				for(Shape* shapeToDelete : m_SelectedShape){
+					m_Shape.erase(std::remove(m_Shape.begin(), m_Shape.end(), shapeToDelete), m_Shape.end());
+					delete shapeToDelete;
+				}
+				m_SelectedShape.clear();
+				std::cout << "Selected shapes erased" <<std::endl;
+				break;
+			}
+			std::cout << "Nothig Selected to be Ereased" <<std::endl;
+			break;
+		}
+
+		case GLFW_KEY_0:{
+            m_CurrentMode = 0;
+			std::cout << "Mode 0: Select Mode Active" <<std::endl;
+            break;
+		}
+
         case GLFW_KEY_1:{
             m_CurrentMode = 1;
             std::cout << "Mode 1: Drawn Rectangle Active" <<std::endl;
@@ -82,14 +152,7 @@ void Layer::OnKeyEvent(int key, int scancode, int action, int mods){
             std::cout << "Mode 4: Drawn Polygon Active" <<std::endl;
             break;
         }
-
-		case GLFW_KEY_ESCAPE:{
-            m_CurrentMode = 0;
-            break;
-		}
-	
 	}
-    
 }
 
 void Layer::OnMouseButtonEvent(int button, int action, int mods, double mouseX, double mouseY){
@@ -116,44 +179,58 @@ void Layer::OnMouseButtonEvent(int button, int action, int mods, double mouseX, 
 	}
 
 
-	if(action == GLFW_PRESS){
-
-		switch (m_CurrentMode) {
-
-			case 1:{
-					   m_CurrentDrawingShape = new Rectangle(ndcX, ndcY, ndcX, ndcY, m_IsFilled);
-					   m_Shape.push_back(m_CurrentDrawingShape);
-
-					   break;
-				   }
-
-			case 2:{
-					   m_CurrentDrawingShape = new Triangle(ndcX, ndcY, ndcX, ndcY, m_IsFilled);
-					   m_Shape.push_back(m_CurrentDrawingShape);
-
-					   break;
-				   }
-
-			case 3:{
-					   m_CurrentDrawingShape = new Circle(ndcX, ndcY , ndcX, ndcY, m_IsFilled);
-					   m_Shape.push_back(m_CurrentDrawingShape);
-
-					   break;
-				   }
-
-			case 4:{
-
-					   break;
-				   }
-
-			case 5:{
-
-					   break;
-				   }
-		}
-	}
-	else if (action == GLFW_RELEASE){
+	if (action != GLFW_PRESS){
 		m_CurrentDrawingShape = nullptr;
+		return;
+	}
+
+	switch (m_CurrentMode) {
+
+		case 0:{
+				   if(!(mods & GLFW_MOD_CONTROL)){
+					   m_SelectedShape.clear();
+				   }
+
+				   for(int i = m_Shape.size() - 1; i >= 0; i--)
+					   if(m_Shape[i]->IsInside(ndcX, ndcY)){
+						   m_SelectedShape.push_back(m_Shape[i]);
+						   std::cout << "The " << i<<"rd last form created has been selected" <<std::endl; 
+						   break;
+					   }
+
+				   break;
+			   }
+
+		case 1:{
+				   m_CurrentDrawingShape = new Rectangle(ndcX, ndcY, ndcX, ndcY, m_IsFilled);
+				   m_Shape.push_back(m_CurrentDrawingShape);
+
+				   break;
+			   }
+
+		case 2:{
+				   m_CurrentDrawingShape = new Triangle(ndcX, ndcY, ndcX, ndcY, m_IsFilled);
+				   m_Shape.push_back(m_CurrentDrawingShape);
+
+				   break;
+			   }
+
+		case 3:{
+				   m_CurrentDrawingShape = new Circle(ndcX, ndcY , ndcX, ndcY, m_IsFilled);
+				   m_Shape.push_back(m_CurrentDrawingShape);
+
+				   break;
+			   }
+
+		case 4:{
+
+				   break;
+			   }
+
+		case 5:{
+
+				   break;
+			   }
 	}
 }
 

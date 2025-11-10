@@ -26,6 +26,7 @@ private:
 	Renderer m_Renderer;
 
 	std::vector<Shape*> m_Shape;
+	std::vector<Shape*> m_SelectedShape;
 
 	int m_CurrentMode;
 

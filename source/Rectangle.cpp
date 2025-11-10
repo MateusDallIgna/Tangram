@@ -3,13 +3,13 @@
 #include "IndexBuffer.h"
 #include "VertexArray.h"
 
-Rectangle::Rectangle(float x1, float y1, float x2, float y2, bool m_IsFilled) : m_AnchorX(x1) , m_AnchorY(y1), m_ShapeIsFilled(m_IsFilled){
+Rectangle::Rectangle(float x1, float y1, float x2, float y2, bool m_IsFilled) : m_AnchorX(x1) , m_AnchorY(y1), m_CurrentX(x2), m_CurrentY(y2), m_ShapeIsFilled(m_IsFilled){
 
 	m_Vertices = {
-		x1,y1,0.0f,0.1f,0.5f,1.0f,
-		x2,y1,1.0f,0.5f,0.0f,1.0f, 
-		x2,y2,0.2f,0.8f,0.0f,1.0f,
-		x1,y2,0.5f,0.8f,0.9f,1.0f
+		x1,y1,1.0f,0.0f,0.0f,1.0f,
+		x2,y1,1.0f,0.0f,0.0f,1.0f,
+		x2,y2,1.0f,0.0f,0.0f,1.0f,
+		x1,y2,1.0f,0.0f,0.0f,1.0f
 	};
 
 	m_Indices = {
@@ -29,13 +29,16 @@ Rectangle::Rectangle(float x1, float y1, float x2, float y2, bool m_IsFilled) : 
 }
 
 void Rectangle::UpdateVertices(double mouseX, double mouseY){
+	
+    m_CurrentX = (float)mouseX;
+    m_CurrentY = (float)mouseY;
 
 
 	m_Vertices = {
-		(float)m_AnchorX, (float)m_AnchorY, 0.0f,0.1f,0.5f,1.0f,
-		(float)mouseX, (float)m_AnchorY, 1.0f,0.5f,0.0f,1.0f,  
-		(float)mouseX, (float)mouseY, 0.2f,0.8f,0.0f,1.0f,
-		(float)m_AnchorX, (float)mouseY, 0.5f,0.8f,0.9f,1.0f
+		(float)m_AnchorX, (float)m_AnchorY, 1.0f,0.0f,0.0f,1.0f,
+		(float)mouseX, (float)m_AnchorY, 1.0f,0.0f,0.0f,1.0f,
+		(float)mouseX, (float)mouseY, 1.0f,0.0f,0.0f,1.0f,
+		(float)m_AnchorX, (float)mouseY, 1.0f,0.0f,0.0f,1.0f,
 	};
 
 	m_VertexArray->SetData(m_Vertices.data(), m_Vertices.size()*sizeof(float) , &m_BufferLayout);
@@ -50,6 +53,27 @@ GLenum Rectangle::GetDrawnMode(){
 		return GL_LINE_LOOP;
 	}
 
+}
+
+void Rectangle::SetColor(float r, float g, float b){
+    
+	for (size_t i = 0; i < m_Vertices.size(); i+=6){
+        m_Vertices[i+2] = r;
+        m_Vertices[i+3] = g;
+        m_Vertices[i+4] = b;
+		m_Vertices[i+5] = 1.0f;
+    }
+	m_VertexArray->SetData(m_Vertices.data(), m_Vertices.size()*sizeof(float) , &m_BufferLayout);
+}
+
+bool Rectangle::IsInside(float ndcX, float ndcY) const{
+	float leftX   = std::min(m_AnchorX, m_CurrentX);
+    float rightX  = std::max(m_AnchorX, m_CurrentX);
+    float bottomY = std::min(m_AnchorY, m_CurrentY);
+    float topY    = std::max(m_AnchorY, m_CurrentY);
+
+    return (ndcX >= leftX   && ndcX <= rightX &&
+            ndcY >= bottomY && ndcY <= topY);
 }
 
 VertexArray& Rectangle::GetVAO() const{

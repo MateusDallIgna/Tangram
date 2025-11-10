@@ -8,9 +8,7 @@
 #include <GL/glu.h>
 #include <iostream>
 
-Polygon::Polygon(float x1, float y1, bool m_IsFilled)
-    : m_AnchorX(x1), m_AnchorY(y1), m_ShapeIsFilled(m_IsFilled), m_IsFinalized(false)
-{
+Polygon::Polygon(float x1, float y1, bool m_IsFilled) : m_AnchorX(x1), m_AnchorY(y1), m_ShapeIsFilled(m_IsFilled), m_IsFinalized(false){
     m_Vertices = {
         m_AnchorX, m_AnchorY, 0.0f, 0.0f, 0.0f, 1.0f
     };
@@ -26,8 +24,7 @@ Polygon::Polygon(float x1, float y1, bool m_IsFilled)
     m_IndexBuffer = new IndexBuffer(m_Indices.data(), m_Indices.size());
 }
 
-void Polygon::AddPoint(double x, double y)
-{
+void Polygon::AddPoint(double x, double y){
     m_Vertices.push_back((float)x);
     m_Vertices.push_back((float)y);
     m_Vertices.push_back(0.0f);
@@ -41,27 +38,70 @@ void Polygon::AddPoint(double x, double y)
     m_IndexBuffer->SetData(m_Indices.data(), m_Indices.size());
 }
 
-GLenum Polygon::GetDrawnMode()
-{
+GLenum Polygon::GetDrawnMode(){
     return m_ShapeIsFilled ? GL_TRIANGLES : GL_LINE_LOOP;
 }
 
-Polygon::~Polygon()
-{
+Polygon::~Polygon(){
     delete m_VertexArray;
     delete m_IndexBuffer;
 }
 
-VertexArray& Polygon::GetVAO() const { return *m_VertexArray; }
-IndexBuffer& Polygon::GetIBO() const { return *m_IndexBuffer; }
+VertexArray& Polygon::GetVAO() const{
+	return *m_VertexArray; 
+}
 
-void Polygon::UpdateVertices(double mouseX, double mouseY)
-{
+IndexBuffer& Polygon::GetIBO() const{
+	return *m_IndexBuffer; 
+}
+
+void Polygon::UpdateVertices(double mouseX, double mouseY){
     // placeholder
 }
 
-void Polygon::AddTessVertex(void* vertex_data)
-{
+void Polygon::SetColor(float r, float g, float b){
+
+	for (size_t i = 0; i < m_Vertices.size(); i+=6){
+        m_Vertices[i+2] = r;
+        m_Vertices[i+3] = g;
+        m_Vertices[i+4] = b;
+		m_Vertices[i+5] = 1.0f;
+    }
+	m_VertexArray->SetData(m_Vertices.data(), m_Vertices.size()*sizeof(float) , &m_BufferLayout);
+}
+
+bool Polygon::IsInside(float ndcX, float ndcY) const{
+	int numVertices = m_Vertices.size() / 6;
+
+	if (numVertices < 3) {
+		return false;
+	}
+
+	bool isInside = false;
+	int j = numVertices - 1; 
+
+	for (int i = 0; i < numVertices; i++) {
+
+		float v_i_x = m_Vertices[i * 6 + 0]; 
+		float v_i_y = m_Vertices[i * 6 + 1]; 
+
+		float v_j_x = m_Vertices[j * 6 + 0];
+		float v_j_y = m_Vertices[j * 6 + 1]; 
+
+		if ( ((v_i_y > ndcY) != (v_j_y > ndcY)) && (ndcX < (v_j_x - v_i_x) * (ndcY - v_i_y) / (v_j_y - v_i_y) + v_i_x) ){
+
+
+			//If our radius crosses an odd number of edges at the end of the check, this variable will be true.
+			isInside = !isInside;
+		}
+
+		j = i; 
+	}
+
+	return isInside; 
+}
+
+void Polygon::AddTessVertex(void* vertex_data){
     float* v = (float*)vertex_data;
 
     m_TessVertices.push_back(v[0]); // x
@@ -98,8 +138,7 @@ static void  tess_error_callback(GLenum errorCode, void* polygon_data)
     std::cerr << "Erro on Tesselator: " << gluErrorString(errorCode) << std::endl;
 }
 
-void Polygon::FinalizeShape()
-{
+void Polygon::FinalizeShape(){
     if (m_Vertices.size() / 6 < 3)
         return; 
 
