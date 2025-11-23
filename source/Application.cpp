@@ -37,6 +37,9 @@ void Application::CreateGLFWWindow(){
 	}
 
 	glfwMakeContextCurrent(m_Window);
+	
+	// Update width and height to match actual window size (important for tiling WMs)
+	glfwGetWindowSize(m_Window, &m_Width, &m_Height);
 }
 
 void Application::InitGLAD(){
@@ -68,8 +71,6 @@ int Application::GetWidth(){
 
 void Application::SetupGL(){
 	glViewport(0, 0, m_Width, m_Height);
-
-	//Back Ground Color
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
 	float aspectRatio = (float)m_Width / (float)m_Height;
@@ -93,4 +94,22 @@ void Application::Run(){
 	CreateGLFWWindow();
 	InitGLAD();
 	SetupGL();
+}
+
+void Application::OnResize(int width, int height) {
+	m_Width = width;
+	m_Height = height;
+	
+	glViewport(0, 0, m_Width, m_Height);
+	
+	float aspectRatio = (float)m_Width / (float)m_Height;
+    float worldHeight = 10.0f; 
+    float worldWidth = worldHeight * aspectRatio;
+
+    float left   = -worldWidth / 2.0f;
+    float right  =  worldWidth / 2.0f;
+    float bottom = -worldHeight / 2.0f;
+    float top    =  worldHeight / 2.0f;
+
+    m_ProjectionMatrix = glm::ortho(left, right, bottom, top, -1.0f, 1.0f);
 }
