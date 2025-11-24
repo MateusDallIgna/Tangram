@@ -342,21 +342,22 @@ void GameLayer::OnMouseButtonEvent(int button, int action, int mods, double mous
                 }
                 
                 if (pieceIndex != -1) {
-                    const auto& solution = m_CurrentLevel->GetSolution();
-                    for (const auto& target : solution) {
-                        if (target.pieceIndex == pieceIndex) {
-                            glm::vec2 currentPos = m_SelectedPiece->GetCenter();
-                            float dist = glm::distance(currentPos, target.position);
-                            
-                            // Snap tolerance: 0.3 units
-                            if (dist < 0.3f) {
-                                float dx = target.position.x - currentPos.x;
-                                float dy = target.position.y - currentPos.y;
-                                m_SelectedPiece->Translate(dx, dy);
-                                std::cout << "Snapped piece to target position!" << std::endl;
-                            }
-                            break;
-                        }
+                    // Grid Snapping Logic
+                    // Snap to grid of size U/4 = 0.7071 / 4 = 0.17677
+                    float gridSize = 0.176776695f;
+                    
+                    glm::vec2 currentPos = m_SelectedPiece->GetCenter();
+                    
+                    // Calculate snapped position
+                    float snappedX = round(currentPos.x / gridSize) * gridSize;
+                    float snappedY = round(currentPos.y / gridSize) * gridSize;
+                    
+                    // Apply snap if close enough (within half grid size)
+                    if (glm::distance(currentPos, glm::vec2(snappedX, snappedY)) < gridSize * 0.6f) {
+                        float dx = snappedX - currentPos.x;
+                        float dy = snappedY - currentPos.y;
+                        m_SelectedPiece->Translate(dx, dy);
+                        // std::cout << "Snapped to grid!" << std::endl;
                     }
                 }
             }
