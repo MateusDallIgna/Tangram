@@ -21,6 +21,7 @@ public:
     void OnKeyEvent(int key, int scancode, int action, int mods);
     
     void ConvertScreenToNDC(double mouseX, double mouseY, float& outX, float& outY);
+    void ConvertScreenToWorld(double mouseX, double mouseY, float& outX, float& outY);
     
     int GetSelectedLevel() const { return m_SelectedLevel; }
     void ResetSelection() { m_SelectedLevel = -1; }

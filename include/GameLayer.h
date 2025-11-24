@@ -35,6 +35,7 @@ public:
 private:
     void InitializePieces();
     void RenderSilhouette();
+    void RenderDynamicSilhouette();
     bool CheckSolution();
     
     Shader m_Shader;

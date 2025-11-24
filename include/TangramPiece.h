@@ -25,9 +25,16 @@ public:
     // Get the center of the piece in world coordinates
     virtual glm::vec2 GetCenter() const = 0;
     
+    // Get the center of the piece in local coordinates (before model matrix)
+    virtual glm::vec2 GetLocalCenter() const = 0;
+    
+    // Get raw vertices
+    virtual const std::vector<float>& GetVertices() const = 0;
+    
     // Lock/unlock piece (when correctly placed)
     void SetLocked(bool locked) { m_IsLocked = locked; }
     bool IsLocked() const { return m_IsLocked; }
+    bool IsFlipped() const { return m_IsFlipped; }
     
 protected:
     bool m_IsLocked = false;

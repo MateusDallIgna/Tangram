@@ -2,7 +2,7 @@
 #include <cmath>
 #include <glm/gtc/matrix_transform.hpp>
 
-static const float PARALLELOGRAM_SIZE = 0.707f;  // Base size
+static const float PARALLELOGRAM_SIZE = 1.0f;  // Base size
 
 TangramParallelogram::TangramParallelogram(float x, float y, float size, float r, float g, float b)
     : m_ModelMatrix(glm::mat4(1.0f)), m_OriginalModelMatrix(glm::mat4(1.0f)) {
@@ -191,7 +191,7 @@ PieceType TangramParallelogram::GetPieceType() const {
 bool TangramParallelogram::IsCorrectlyPlaced(const glm::vec2& targetPos, float targetRotation) const {
     glm::vec2 currentCenter = GetCenter();
     
-    float positionTolerance = 0.1f;
+    float positionTolerance = 0.2f;
     float distance = glm::length(currentCenter - targetPos);
     
     return distance < positionTolerance;
@@ -207,4 +207,19 @@ glm::vec2 TangramParallelogram::GetCenter() const {
     
     glm::vec4 worldCenter = m_ModelMatrix * center;
     return glm::vec2(worldCenter.x, worldCenter.y);
+}
+
+glm::vec2 TangramParallelogram::GetLocalCenter() const {
+    // Parallelogram center is average of vertices
+    // But we need to account for the fact that vertices are relative to (x,y)
+    // The vertices are stored as absolute coordinates in m_Vertices
+    
+    return glm::vec2(
+        (m_Vertices[0] + m_Vertices[6] + m_Vertices[12] + m_Vertices[18]) / 4.0f,
+        (m_Vertices[1] + m_Vertices[7] + m_Vertices[13] + m_Vertices[19]) / 4.0f
+    );
+}
+
+const std::vector<float>& TangramParallelogram::GetVertices() const {
+    return m_Vertices;
 }

@@ -42,7 +42,9 @@ public:
     void ResetToOriginal() override;
     PieceType GetPieceType() const override;
     bool IsCorrectlyPlaced(const glm::vec2& targetPos, float targetRotation) const override;
-    glm::vec2 GetCenter() const override;
+    virtual glm::vec2 GetCenter() const override;
+    virtual glm::vec2 GetLocalCenter() const override;
+    virtual const std::vector<float>& GetVertices() const override;
     
 private:
     void InitializeVertices(float x, float y, float size);

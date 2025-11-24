@@ -7,6 +7,7 @@ struct PiecePosition {
     int pieceIndex;           // Index in the pieces array
     glm::vec2 position;       // Target position
     float rotation;           // Target rotation in radians
+    bool isFlipped;           // Whether the piece should be flipped
 };
 
 class Level {

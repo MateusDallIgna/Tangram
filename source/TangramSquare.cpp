@@ -2,7 +2,7 @@
 #include <cmath>
 #include <glm/gtc/matrix_transform.hpp>
 
-static const float SQUARE_SIZE = 0.5f;  // Matches small triangle leg (0.5)
+static const float SQUARE_SIZE = 0.70710678f;  // Matches small triangle leg (0.707)
 
 TangramSquare::TangramSquare(float x, float y, float size, float r, float g, float b)
     : m_ModelMatrix(glm::mat4(1.0f)), m_OriginalModelMatrix(glm::mat4(1.0f)) {
@@ -151,7 +151,7 @@ PieceType TangramSquare::GetPieceType() const {
 bool TangramSquare::IsCorrectlyPlaced(const glm::vec2& targetPos, float targetRotation) const {
     glm::vec2 currentCenter = GetCenter();
     
-    float positionTolerance = 0.1f;
+    float positionTolerance = 0.2f;
     float distance = glm::length(currentCenter - targetPos);
     
     return distance < positionTolerance;
@@ -167,4 +167,16 @@ glm::vec2 TangramSquare::GetCenter() const {
     
     glm::vec4 worldCenter = m_ModelMatrix * center;
     return glm::vec2(worldCenter.x, worldCenter.y);
+}
+
+glm::vec2 TangramSquare::GetLocalCenter() const {
+    // Square center is average of vertices
+    return glm::vec2(
+        (m_Vertices[0] + m_Vertices[6] + m_Vertices[12] + m_Vertices[18]) / 4.0f,
+        (m_Vertices[1] + m_Vertices[7] + m_Vertices[13] + m_Vertices[19]) / 4.0f
+    );
+}
+
+const std::vector<float>& TangramSquare::GetVertices() const {
+    return m_Vertices;
 }

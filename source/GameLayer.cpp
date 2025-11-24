@@ -100,8 +100,11 @@ void GameLayer::OnRender() {
     m_Shader.SetUniformMat4f("u_Projection", proj);
     m_Shader.SetUniformMat4f("u_View", view);
     
-    // Render silhouette first (behind pieces)
+    // Render silhouette outline (shows target shape border)
     RenderSilhouette();
+    
+    // Reset color override for pieces
+    m_Shader.SetUniform1i("u_UseUniformColor", 0);
     
     // Render all Tangram pieces
     for (TangramPiece* piece : m_Pieces) {
@@ -115,6 +118,33 @@ void GameLayer::RenderSilhouette() {
     glm::mat4 identityModel(1.0f);
     m_Shader.SetUniformMat4f("u_Model", identityModel);
     m_Renderer.Draw(*m_SilhouetteVAO, *m_SilhouetteIBO, GL_LINE_LOOP);
+}
+
+void GameLayer::RenderDynamicSilhouette() {
+    m_Shader.SetUniform1i("u_UseUniformColor", 1);
+    m_Shader.SetUniform4f("u_Color", 0.5f, 0.5f, 0.5f, 0.5f); // Gray
+    
+    const auto& solution = m_CurrentLevel->GetSolution();
+    for (const auto& target : solution) {
+        if (target.pieceIndex >= 0 && target.pieceIndex < (int)m_Pieces.size()) {
+            TangramPiece* piece = m_Pieces[target.pieceIndex];
+            
+            glm::vec2 localCenter = piece->GetLocalCenter();
+            
+            glm::mat4 targetModel = glm::mat4(1.0f);
+            targetModel = glm::translate(targetModel, glm::vec3(target.position.x, target.position.y, 0.0f));
+            targetModel = glm::rotate(targetModel, target.rotation, glm::vec3(0.0f, 0.0f, 1.0f));
+            
+            if (target.isFlipped) {
+                targetModel = glm::scale(targetModel, glm::vec3(-1.0f, 1.0f, 1.0f));
+            }
+            
+            targetModel = glm::translate(targetModel, glm::vec3(-localCenter.x, -localCenter.y, 0.0f));
+            
+            m_Shader.SetUniformMat4f("u_Model", targetModel);
+            m_Renderer.Draw(piece->GetVAO(), piece->GetIBO(), piece->GetDrawnMode());
+        }
+    }
 }
 
 void GameLayer::ConvertScreenToNDC(double mouseX, double mouseY, float& outX, float& outY) {
@@ -300,6 +330,36 @@ void GameLayer::OnMouseButtonEvent(int button, int action, int mods, double mous
     if (action == GLFW_RELEASE) {
         if (m_IsTranslating) {
             m_IsTranslating = false;
+            
+            // Snapping Logic
+            if (m_SelectedPiece != nullptr) {
+                int pieceIndex = -1;
+                for (size_t i = 0; i < m_Pieces.size(); ++i) {
+                    if (m_Pieces[i] == m_SelectedPiece) {
+                        pieceIndex = i;
+                        break;
+                    }
+                }
+                
+                if (pieceIndex != -1) {
+                    const auto& solution = m_CurrentLevel->GetSolution();
+                    for (const auto& target : solution) {
+                        if (target.pieceIndex == pieceIndex) {
+                            glm::vec2 currentPos = m_SelectedPiece->GetCenter();
+                            float dist = glm::distance(currentPos, target.position);
+                            
+                            // Snap tolerance: 0.3 units
+                            if (dist < 0.3f) {
+                                float dx = target.position.x - currentPos.x;
+                                float dy = target.position.y - currentPos.y;
+                                m_SelectedPiece->Translate(dx, dy);
+                                std::cout << "Snapped piece to target position!" << std::endl;
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
         }
         if (button == GLFW_MOUSE_BUTTON_MIDDLE && m_IsPanning) {
             m_IsPanning = false;
@@ -350,24 +410,49 @@ void GameLayer::ResetLevel() {
 }
 
 bool GameLayer::CheckSolution() {
-    // Simple solution check - verify all pieces are roughly in correct positions
-    // This is a simplified version - a full implementation would check rotations too
+    // Check if all pieces are inside the silhouette outline
+    // This allows any valid configuration to win
     
-    const auto& solution = m_CurrentLevel->GetSolution();
-    if (solution.size() != m_Pieces.size()) {
+    const auto& silhouetteVerts = m_CurrentLevel->GetSilhouetteVertices();
+    if (silhouetteVerts.empty()) {
         return false;
     }
     
-    int correctPieces = 0;
-    for (const auto& targetPos : solution) {
-        if (targetPos.pieceIndex >= 0 && targetPos.pieceIndex < (int)m_Pieces.size()) {
-            TangramPiece* piece = m_Pieces[targetPos.pieceIndex];
-            if (piece->IsCorrectlyPlaced(targetPos.position, targetPos.rotation)) {
-                correctPieces++;
+    // Check each piece
+    for (TangramPiece* piece : m_Pieces) {
+        // Get piece vertices in world space
+        const auto& vertices = piece->GetVertices();
+        glm::mat4 model = piece->GetModelMatrix();
+        
+        // Check if all vertices of this piece are inside the silhouette
+        for (size_t i = 0; i < vertices.size(); i += 6) {  // 6 floats per vertex (x, y, r, g, b, a)
+            glm::vec4 vertex(vertices[i], vertices[i+1], 0.0f, 1.0f);
+            glm::vec4 worldVertex = model * vertex;
+            
+            // Simple bounding box check - piece must be roughly inside outline bounds
+            bool insideBounds = false;
+            float minX = 1000.0f, maxX = -1000.0f, minY = 1000.0f, maxY = -1000.0f;
+            
+            for (const auto& v : silhouetteVerts) {
+                minX = std::min(minX, v.x);
+                maxX = std::max(maxX, v.x);
+                minY = std::min(minY, v.y);
+                maxY = std::max(maxY, v.y);
+            }
+            
+            // Add small tolerance
+            float tolerance = 0.2f;
+            if (worldVertex.x >= minX - tolerance && worldVertex.x <= maxX + tolerance &&
+                worldVertex.y >= minY - tolerance && worldVertex.y <= maxY + tolerance) {
+                insideBounds = true;
+            }
+            
+            if (!insideBounds) {
+                return false;  // At least one vertex is outside
             }
         }
     }
     
-    // All pieces must be correctly placed
-    return correctPieces == (int)m_Pieces.size();
+    // All pieces are inside the outline
+    return true;
 }

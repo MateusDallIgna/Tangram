@@ -4,9 +4,9 @@
 #include <iostream>
 
 // Traditional Tangram triangle sizes (relative to unit square)
-static const float LARGE_TRIANGLE_SIZE = 1.0f;
-static const float MEDIUM_TRIANGLE_SIZE = 0.707f;  // 1/sqrt(2)
-static const float SMALL_TRIANGLE_SIZE = 0.5f;
+static const float LARGE_TRIANGLE_SIZE = 1.41421356f;
+static const float MEDIUM_TRIANGLE_SIZE = 1.0f;
+static const float SMALL_TRIANGLE_SIZE = 0.70710678f;
 
 TangramTriangle::TangramTriangle(float x, float y, TriangleSize size, float r, float g, float b)
     : m_Size(size), m_ModelMatrix(glm::mat4(1.0f)), m_OriginalModelMatrix(glm::mat4(1.0f)) {
@@ -208,7 +208,7 @@ bool TangramTriangle::IsCorrectlyPlaced(const glm::vec2& targetPos, float target
     glm::vec2 currentCenter = GetCenter();
     
     // Check position (with some tolerance)
-    float positionTolerance = 0.1f;
+    float positionTolerance = 0.2f;
     float distance = glm::length(currentCenter - targetPos);
     
     // For now, just check position
@@ -227,4 +227,21 @@ glm::vec2 TangramTriangle::GetCenter() const {
     
     glm::vec4 worldCenter = m_ModelMatrix * center;
     return glm::vec2(worldCenter.x, worldCenter.y);
+}
+
+glm::vec2 TangramTriangle::GetLocalCenter() const {
+    // For a right isosceles triangle with right angle at bottom-left
+    // Vertices: top, bottom-left, bottom-right
+    // Center is average of vertices
+    // But we need to account for the fact that vertices are relative to (x,y)
+    // The vertices are stored as absolute coordinates in m_Vertices
+    
+    return glm::vec2(
+        (m_Vertices[0] + m_Vertices[6] + m_Vertices[12]) / 3.0f,
+        (m_Vertices[1] + m_Vertices[7] + m_Vertices[13]) / 3.0f
+    );
+}
+
+const std::vector<float>& TangramTriangle::GetVertices() const {
+    return m_Vertices;
 }

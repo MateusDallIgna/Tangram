@@ -86,12 +86,12 @@ void MenuLayer::OnUpdate(GLFWwindow* window) {
     double mouseX, mouseY;
     glfwGetCursorPos(window, &mouseX, &mouseY);
     
-    float ndcX, ndcY;
-    ConvertScreenToNDC(mouseX, mouseY, ndcX, ndcY);
+    float worldX, worldY;
+    ConvertScreenToWorld(mouseX, mouseY, worldX, worldY);
     
     m_HoveredButton = -1;
     for (size_t i = 0; i < m_LevelButtons.size(); ++i) {
-        if (m_LevelButtons[i]->IsInside(ndcX, ndcY)) {
+        if (m_LevelButtons[i]->IsInside(worldX, worldY)) {
             m_HoveredButton = i;
             break;
         }
@@ -104,6 +104,19 @@ void MenuLayer::ConvertScreenToNDC(double mouseX, double mouseY, float& outX, fl
     
     outX = (mouseX / (float)windowWidth) * 2.0f - 1.0f;
     outY = 1.0f - (mouseY / (float)windowHeight) * 2.0f;
+}
+
+void MenuLayer::ConvertScreenToWorld(double mouseX, double mouseY, float& outX, float& outY) {
+    float ndcX, ndcY;
+    ConvertScreenToNDC(mouseX, mouseY, ndcX, ndcY);
+    
+    glm::mat4 proj = m_WindowContext->GetProjectionMatrix();
+    glm::mat4 view = m_ViewMatrix;
+    glm::mat4 invVP = glm::inverse(proj * view);
+    
+    glm::vec4 worldPos = invVP * glm::vec4(ndcX, ndcY, 0.0f, 1.0f);
+    outX = worldPos.x;
+    outY = worldPos.y;
 }
 
 void MenuLayer::OnKeyEvent(int key, int /*scancode*/, int action, int mods) {
@@ -120,12 +133,12 @@ void MenuLayer::OnKeyEvent(int key, int /*scancode*/, int action, int mods) {
 
 void MenuLayer::OnMouseButtonEvent(int button, int action, int /*mods*/, double mouseX, double mouseY) {
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
-        float ndcX, ndcY;
-        ConvertScreenToNDC(mouseX, mouseY, ndcX, ndcY);
+        float worldX, worldY;
+        ConvertScreenToWorld(mouseX, mouseY, worldX, worldY);
         
         // Check which button was clicked
         for (size_t i = 0; i < m_LevelButtons.size(); ++i) {
-            if (m_LevelButtons[i]->IsInside(ndcX, ndcY)) {
+            if (m_LevelButtons[i]->IsInside(worldX, worldY)) {
                 m_SelectedLevel = i;
                 Level* level = m_LevelManager->GetLevel(i);
                 if (level) {
