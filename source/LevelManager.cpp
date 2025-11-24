@@ -41,173 +41,165 @@ const float ROT_225 = 5.0f * PI / 4.0f;
 const float ROT_270 = 3.0f * PI / 2.0f;
 const float ROT_315 = 7.0f * PI / 4.0f;
 
-// Level 1: SQUARE - scaled to fit all 7 pieces
+// Level 1: SQUARE - Exact Area 4.0
 void LevelManager::CreateLevel1() {
-    // Square outline - standard Tangram square size
+    // 2x2 Square centered at origin
     std::vector<glm::vec2> silhouette = {
-        glm::vec2(-1.5f, -1.5f),
-        glm::vec2(1.5f, -1.5f),
-        glm::vec2(1.5f, 1.5f),
-        glm::vec2(-1.5f, 1.5f)
+        glm::vec2(-1.0f, -1.0f),
+        glm::vec2(1.0f, -1.0f),
+        glm::vec2(1.0f, 1.0f),
+        glm::vec2(-1.0f, 1.0f)
     };
     
     std::vector<PiecePosition> solution = {};
-    
     m_Levels.push_back(new Level(1, "Square", silhouette, solution));
 }
 
-// Level 2: TRIANGLE - scaled to fit all pieces
+// Level 2: TRIANGLE - Exact Area 4.0
 void LevelManager::CreateLevel2() {
-    // Triangle outline pointing up
+    // Base 4, Height 2
     std::vector<glm::vec2> silhouette = {
-        glm::vec2(0.0f, 2.0f),      // Top
-        glm::vec2(-2.0f, -1.5f),    // Bottom left
-        glm::vec2(2.0f, -1.5f)      // Bottom right
+        glm::vec2(0.0f, 1.0f),      // Top
+        glm::vec2(-2.0f, -1.0f),    // Bottom left
+        glm::vec2(2.0f, -1.0f)      // Bottom right
     };
     
     std::vector<PiecePosition> solution = {};
-    
     m_Levels.push_back(new Level(2, "Triangle", silhouette, solution));
 }
 
-// Level 3: RECTANGLE - scaled properly
+// Level 3: RECTANGLE - Exact Area 4.0
 void LevelManager::CreateLevel3() {
-    // Wide rectangle outline
+    // Width 2.828, Height 1.414 (sqrt(8) x sqrt(2))
+    float w = 1.414f;
+    float h = 0.707f;
     std::vector<glm::vec2> silhouette = {
-        glm::vec2(-2.5f, -1.0f),
-        glm::vec2(2.5f, -1.0f),
-        glm::vec2(2.5f, 1.0f),
-        glm::vec2(-2.5f, 1.0f)
+        glm::vec2(-w, -h),
+        glm::vec2(w, -h),
+        glm::vec2(w, h),
+        glm::vec2(-w, h)
     };
     
     std::vector<PiecePosition> solution = {};
-    
     m_Levels.push_back(new Level(3, "Rectangle", silhouette, solution));
 }
 
-// Level 4: HOUSE - scaled to fit all pieces
+// Level 4: HOUSE - Exact Area 4.0
 void LevelManager::CreateLevel4() {
-    // House outline with triangular roof
+    // Base 2x1 (Area 2), Roof Base 2 Height 2 (Area 2)
     std::vector<glm::vec2> silhouette = {
         glm::vec2(0.0f, 2.0f),      // Roof peak
-        glm::vec2(-1.5f, 0.5f),     // Left roof edge
-        glm::vec2(-1.5f, -1.5f),    // Bottom left
-        glm::vec2(1.5f, -1.5f),     // Bottom right
-        glm::vec2(1.5f, 0.5f)       // Right roof edge
+        glm::vec2(-1.0f, 0.0f),     // Left roof edge
+        glm::vec2(-1.0f, -1.0f),    // Bottom left
+        glm::vec2(1.0f, -1.0f),     // Bottom right
+        glm::vec2(1.0f, 0.0f)       // Right roof edge
     };
     
     std::vector<PiecePosition> solution = {};
-    
     m_Levels.push_back(new Level(4, "House", silhouette, solution));
 }
 
-// Level 5: BOAT - scaled properly
+// Level 5: BOAT - Approx Area 4.0
 void LevelManager::CreateLevel5() {
-    // Boat outline with sail
+    // Scaled down from previous version (factor ~0.7)
     std::vector<glm::vec2> silhouette = {
-        glm::vec2(0.0f, 2.0f),      // Sail top
-        glm::vec2(-0.75f, 0.0f),    // Sail left
-        glm::vec2(-1.5f, -0.75f),   // Hull left
-        glm::vec2(-0.75f, -1.5f),   // Hull bottom left
-        glm::vec2(0.75f, -1.5f),    // Hull bottom right
-        glm::vec2(1.5f, -0.75f),    // Hull right
-        glm::vec2(0.75f, 0.0f)      // Sail right
+        glm::vec2(0.0f, 1.4f),      // Sail top
+        glm::vec2(-0.5f, 0.0f),     // Sail left
+        glm::vec2(-1.0f, -0.5f),    // Hull left
+        glm::vec2(-0.5f, -1.0f),    // Hull bottom left
+        glm::vec2(0.5f, -1.0f),     // Hull bottom right
+        glm::vec2(1.0f, -0.5f),     // Hull right
+        glm::vec2(0.5f, 0.0f)       // Sail right
     };
     
     std::vector<PiecePosition> solution = {};
-    
     m_Levels.push_back(new Level(5, "Boat", silhouette, solution));
 }
 
-// Level 6: ARROW - scaled to fit
+// Level 6: ARROW - Approx Area 4.0
 void LevelManager::CreateLevel6() {
-    // Arrow pointing right
+    // Scaled down
     std::vector<glm::vec2> silhouette = {
-        glm::vec2(2.0f, 0.0f),      // Arrow tip
-        glm::vec2(0.75f, 1.0f),     // Top of head
-        glm::vec2(0.75f, 0.5f),     // Top of shaft
-        glm::vec2(-1.5f, 0.5f),     // Shaft top left
-        glm::vec2(-1.5f, -0.5f),    // Shaft bottom left
-        glm::vec2(0.75f, -0.5f),    // Bottom of shaft
-        glm::vec2(0.75f, -1.0f)     // Bottom of head
+        glm::vec2(1.4f, 0.0f),      // Arrow tip
+        glm::vec2(0.5f, 0.7f),      // Top of head
+        glm::vec2(0.5f, 0.35f),     // Top of shaft
+        glm::vec2(-1.0f, 0.35f),    // Shaft top left
+        glm::vec2(-1.0f, -0.35f),   // Shaft bottom left
+        glm::vec2(0.5f, -0.35f),    // Bottom of shaft
+        glm::vec2(0.5f, -0.7f)      // Bottom of head
     };
     
     std::vector<PiecePosition> solution = {};
-    
     m_Levels.push_back(new Level(6, "Arrow", silhouette, solution));
 }
 
-// Level 7: CAT - scaled properly
+// Level 7: CAT - Approx Area 4.0
 void LevelManager::CreateLevel7() {
-    // Sitting cat outline
+    // Scaled down
     std::vector<glm::vec2> silhouette = {
-        glm::vec2(-0.75f, 2.0f),    // Left ear
-        glm::vec2(-0.5f, 1.5f),     // Head left
-        glm::vec2(-1.0f, 0.0f),     // Body left
-        glm::vec2(-0.75f, -1.5f),   // Bottom left
-        glm::vec2(0.75f, -1.5f),    // Bottom right
-        glm::vec2(1.0f, 0.0f),      // Body right
-        glm::vec2(0.5f, 1.5f),      // Head right
-        glm::vec2(0.75f, 2.0f),     // Right ear
-        glm::vec2(0.0f, 1.75f)      // Head top
+        glm::vec2(-0.5f, 1.4f),     // Left ear
+        glm::vec2(-0.35f, 1.0f),    // Head left
+        glm::vec2(-0.7f, 0.0f),     // Body left
+        glm::vec2(-0.5f, -1.0f),    // Bottom left
+        glm::vec2(0.5f, -1.0f),     // Bottom right
+        glm::vec2(0.7f, 0.0f),      // Body right
+        glm::vec2(0.35f, 1.0f),     // Head right
+        glm::vec2(0.5f, 1.4f),      // Right ear
+        glm::vec2(0.0f, 1.2f)       // Head top
     };
     
     std::vector<PiecePosition> solution = {};
-    
     m_Levels.push_back(new Level(7, "Cat", silhouette, solution));
 }
 
-// Level 8: BIRD - scaled to fit
+// Level 8: BIRD - Approx Area 4.0
 void LevelManager::CreateLevel8() {
-    // Flying bird outline
+    // Scaled down
     std::vector<glm::vec2> silhouette = {
-        glm::vec2(2.0f, 1.5f),      // Beak
-        glm::vec2(0.75f, 0.75f),    // Head
-        glm::vec2(1.0f, 0.0f),      // Right wing top
+        glm::vec2(1.4f, 1.0f),      // Beak
+        glm::vec2(0.5f, 0.5f),      // Head
+        glm::vec2(0.7f, 0.0f),      // Right wing top
         glm::vec2(0.0f, 0.0f),      // Body center
-        glm::vec2(-2.0f, -1.5f),    // Left wing tip
-        glm::vec2(-0.75f, 0.0f),    // Left wing top
-        glm::vec2(-1.5f, 0.75f)     // Tail
+        glm::vec2(-1.4f, -1.0f),    // Left wing tip
+        glm::vec2(-0.5f, 0.0f),     // Left wing top
+        glm::vec2(-1.0f, 0.5f)      // Tail
     };
     
     std::vector<PiecePosition> solution = {};
-    
     m_Levels.push_back(new Level(8, "Bird", silhouette, solution));
 }
 
-// Level 9: FISH - scaled properly
+// Level 9: FISH - Approx Area 4.0
 void LevelManager::CreateLevel9() {
-    // Fish swimming right
+    // Scaled down
     std::vector<glm::vec2> silhouette = {
-        glm::vec2(2.0f, 0.0f),      // Nose
-        glm::vec2(1.0f, 0.75f),     // Top fin
-        glm::vec2(0.0f, 1.0f),      // Top body
-        glm::vec2(-1.0f, 0.75f),    // Tail top
-        glm::vec2(-1.75f, 0.0f),    // Tail tip
-        glm::vec2(-1.0f, -0.75f),   // Tail bottom
-        glm::vec2(0.0f, -1.0f),     // Bottom body
-        glm::vec2(1.0f, -0.75f)     // Bottom fin
+        glm::vec2(1.4f, 0.0f),      // Nose
+        glm::vec2(0.7f, 0.5f),      // Top fin
+        glm::vec2(0.0f, 0.7f),      // Top body
+        glm::vec2(-0.7f, 0.5f),     // Tail top
+        glm::vec2(-1.2f, 0.0f),     // Tail tip
+        glm::vec2(-0.7f, -0.5f),    // Tail bottom
+        glm::vec2(0.0f, -0.7f),     // Bottom body
+        glm::vec2(0.7f, -0.5f)      // Bottom fin
     };
     
     std::vector<PiecePosition> solution = {};
-    
     m_Levels.push_back(new Level(9, "Fish", silhouette, solution));
 }
 
-// Level 10: CANDLE - scaled to fit
+// Level 10: CANDLE - Approx Area 4.0
 void LevelManager::CreateLevel10() {
-    // Candle with flame
+    // Scaled down
     std::vector<glm::vec2> silhouette = {
-        glm::vec2(0.0f, 2.0f),      // Flame tip
-        glm::vec2(-0.5f, 1.5f),     // Flame left
-        glm::vec2(-0.75f, 1.0f),    // Candle top left
-        glm::vec2(-0.75f, -1.5f),   // Candle bottom left
-        glm::vec2(0.75f, -1.5f),    // Candle bottom right
-        glm::vec2(0.75f, 1.0f),     // Candle top right
-        glm::vec2(0.5f, 1.5f)       // Flame right
+        glm::vec2(0.0f, 1.4f),      // Flame tip
+        glm::vec2(-0.35f, 1.0f),    // Flame left
+        glm::vec2(-0.5f, 0.7f),     // Candle top left
+        glm::vec2(-0.5f, -1.0f),    // Candle bottom left
+        glm::vec2(0.5f, -1.0f),     // Candle bottom right
+        glm::vec2(0.5f, 0.7f),      // Candle top right
+        glm::vec2(0.35f, 1.0f)      // Flame right
     };
     
     std::vector<PiecePosition> solution = {};
-    
     m_Levels.push_back(new Level(10, "Candle", silhouette, solution));
 }
