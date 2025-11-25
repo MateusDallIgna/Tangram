@@ -9,7 +9,8 @@ static const float MEDIUM_TRIANGLE_SIZE = 1.0f;
 static const float SMALL_TRIANGLE_SIZE = 0.70710678f;
 
 TangramTriangle::TangramTriangle(float x, float y, TriangleSize size, float r, float g, float b)
-    : m_Size(size), m_ModelMatrix(glm::mat4(1.0f)), m_OriginalModelMatrix(glm::mat4(1.0f)) {
+    : m_Size(size), m_ModelMatrix(glm::mat4(1.0f)), m_OriginalModelMatrix(glm::mat4(1.0f)),
+      m_OriginalR(r), m_OriginalG(g), m_OriginalB(b) {
     
     float sizeValue;
     switch (size) {
@@ -47,6 +48,8 @@ TangramTriangle::TangramTriangle(float x, float y, TriangleSize size, float r, f
     m_VertexArray = new VertexArray();
     m_VertexArray->SetData(m_Vertices.data(), m_Vertices.size() * sizeof(float), &m_BufferLayout);
     m_IndexBuffer = new IndexBuffer(m_Indices.data(), m_Indices.size());
+    
+    m_CurrentRotation = 0.0f;
 }
 
 void TangramTriangle::InitializeVertices(float x, float y, float size) {
@@ -133,6 +136,9 @@ void TangramTriangle::Translate(float dx, float dy) {
 void TangramTriangle::Rotate(float angle) {
     if (m_IsLocked) return;
     
+    // Track cumulative rotation
+    m_CurrentRotation += angle;
+    
     float centerX = (m_Vertices[0] + m_Vertices[6] + m_Vertices[12]) / 3.0f;
     float centerY = (m_Vertices[1] + m_Vertices[7] + m_Vertices[13]) / 3.0f;
     
@@ -190,6 +196,10 @@ void TangramTriangle::ResetToOriginal() {
     m_Vertices = m_OriginalVertices;
     m_IsFlipped = false;
     m_IsLocked = false;
+    m_CurrentRotation = 0.0f;
+    
+    // Restore original color
+    SetColor(m_OriginalR, m_OriginalG, m_OriginalB);
 }
 
 PieceType TangramTriangle::GetPieceType() const {

@@ -5,7 +5,8 @@
 static const float PARALLELOGRAM_SIZE = 1.0f;  // Base size
 
 TangramParallelogram::TangramParallelogram(float x, float y, float size, float r, float g, float b)
-    : m_ModelMatrix(glm::mat4(1.0f)), m_OriginalModelMatrix(glm::mat4(1.0f)) {
+    : m_ModelMatrix(glm::mat4(1.0f)), m_OriginalModelMatrix(glm::mat4(1.0f)),
+      m_OriginalR(r), m_OriginalG(g), m_OriginalB(b) {
     
     InitializeVertices(x, y, PARALLELOGRAM_SIZE);
     
@@ -30,6 +31,8 @@ TangramParallelogram::TangramParallelogram(float x, float y, float size, float r
     m_VertexArray = new VertexArray();
     m_VertexArray->SetData(m_Vertices.data(), m_Vertices.size() * sizeof(float), &m_BufferLayout);
     m_IndexBuffer = new IndexBuffer(m_Indices.data(), m_Indices.size());
+    
+    m_CurrentRotation = 0.0f;
 }
 
 void TangramParallelogram::InitializeVertices(float x, float y, float size) {
@@ -123,6 +126,9 @@ void TangramParallelogram::Translate(float dx, float dy) {
 void TangramParallelogram::Rotate(float angle) {
     if (m_IsLocked) return;
     
+    // Track cumulative rotation
+    m_CurrentRotation += angle;
+    
     float centerX = (m_Vertices[0] + m_Vertices[12]) / 2.0f;
     float centerY = (m_Vertices[1] + m_Vertices[7]) / 2.0f;
     
@@ -182,6 +188,10 @@ void TangramParallelogram::ResetToOriginal() {
     m_Vertices = m_OriginalVertices;
     m_IsFlipped = false;
     m_IsLocked = false;
+    m_CurrentRotation = 0.0f;
+    
+    // Restore original color
+    SetColor(m_OriginalR, m_OriginalG, m_OriginalB);
 }
 
 PieceType TangramParallelogram::GetPieceType() const {

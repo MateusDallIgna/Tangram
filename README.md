@@ -1,34 +1,33 @@
 # Tangram Puzzle Game
 
-A traditional Tangram puzzle game built with OpenGL and C++. Arrange 7 geometric pieces to match target silhouettes across 10 challenging levels!
+A traditional Tangram puzzle game built with OpenGL and C++. Arrange 7 geometric pieces to match target shapes across 10 creative levels!
 
 ## Features
 
-- **10 Unique Levels**: Square, Triangle, Cat, House, Bird, Boat, Running Person, Fish, Candle, and Rabbit
+- **10 Unique Levels**: Square, Triangle, Rectangle, Cow, Trapezoid, Elephant, Whale, Turtle, Horse, and Cat
 - **7 Traditional Tangram Pieces**: 2 large triangles, 1 medium triangle, 2 small triangles, 1 square, and 1 parallelogram
+- **Ghost Piece Visualization**: Semi-transparent overlays show exactly where each piece should go
+- **Smart Auto-Snap**: Pieces automatically snap to correct position, rotation, and flip state when placed nearby
 - **Colorful Pieces**: Each piece has a distinct color for easy identification
+- **Visual Feedback**: Pieces turn green when correctly locked in place
 - **Intuitive Controls**: Move, rotate, and flip pieces with mouse and keyboard
-- **View Controls**: Zoom and pan to get the perfect view
-- **Level Selection Menu**: Simple text-based menu for choosing levels
+- **Position Capture Tool**: Press 'P' to capture current piece positions (for level creation)
 
 ## Building
 
 ### Using Makefile (Recommended)
 
-The easiest way to build is using the provided Makefile:
-
 ```bash
 make          # Build the program
 make run      # Build and run the program
 make clean    # Remove build artifacts
+make rebuild  # Clean and rebuild
 make help     # Show help message
 ```
 
 The executable will be created in the root directory as `Tangram`.
 
 ### Manual Compilation
-
-If you prefer to compile manually:
 
 ```bash
 g++ source/main.cpp source/Application.cpp source/Renderer.cpp source/Shader.cpp \
@@ -42,10 +41,7 @@ g++ source/main.cpp source/Application.cpp source/Renderer.cpp source/Shader.cpp
     -std=c++17 -o Tangram
 ```
 
-**Note**: When compiling manually, make sure to:
-- Compile from the root directory (or adjust paths accordingly)
-- Run the executable from the root directory so it can find the `shaders/` folder
-- Include the `-std=c++17` flag for C++17 features
+**Note**: Run the executable from the root directory so it can find the `shaders/` folder.
 
 ## Requirements
 
@@ -64,9 +60,10 @@ g++ source/main.cpp source/Application.cpp source/Renderer.cpp source/Shader.cpp
 ### Game
 
 #### Piece Manipulation
-- **Left Click** - Select and drag piece
+- **Left Click & Drag** - Move piece
 - **Q** - Rotate piece counter-clockwise
 - **E** - Rotate piece clockwise
+- **R** - Rotate piece 45 degrees
 - **F** - Flip piece horizontally
 
 #### View Controls
@@ -76,8 +73,8 @@ g++ source/main.cpp source/Application.cpp source/Renderer.cpp source/Shader.cpp
 - **Space + Drag Mouse** - Pan (hold space and drag)
 
 #### Game Controls
-- **R** - Reset level (return all pieces to starting positions)
 - **C** - Check solution (verify if puzzle is solved)
+- **P** - Print current piece positions (for level creation)
 - **Ctrl+Q** - Quit to menu
 
 ## Running
@@ -93,10 +90,30 @@ The program will display the level selection menu. Click on any level button to 
 ## Gameplay
 
 1. **Select a Level**: Click on a level button in the menu
-2. **Arrange the Pieces**: The 7 Tangram pieces will appear on the right side of the screen
-3. **Match the Silhouette**: Move, rotate, and flip pieces to match the gray outline on the left
-4. **Check Your Solution**: Press 'C' to verify if you've solved the puzzle correctly
-5. **Complete the Level**: When all pieces are correctly placed, you'll return to the menu
+2. **See Ghost Pieces**: Semi-transparent gray pieces show target positions
+3. **Arrange the Pieces**: Drag pieces close to their ghost positions
+4. **Auto-Snap**: Pieces automatically snap and turn green when correctly placed
+5. **Complete the Level**: When all 7 pieces are green, you've won!
+
+### How Snapping Works
+
+- **Position-Based**: Just drag pieces close to ghost positions (within 0.25 units)
+- **Auto-Correction**: Rotation and flip state are automatically corrected
+- **Visual Feedback**: Pieces turn green and lock when correctly placed
+- **Locked Pieces**: Cannot be moved or rotated once locked
+
+## Levels
+
+1. **Square** - Classic 2x2 square formation
+2. **Triangle** - Isosceles triangle
+3. **Rectangle** - Wide rectangle
+4. **Cow** - Creative animal shape
+5. **Trapezoid** - Geometric trapezoid
+6. **Elephant** - Majestic elephant silhouette
+7. **Whale** - Sea creature
+8. **Turtle** - Turtle with four legs
+9. **Horse** - Standing horse
+10. **Cat** - Sitting cat
 
 ## Project Structure
 
@@ -121,19 +138,6 @@ Tangram/
 └── README.md             # This file
 ```
 
-## Levels
-
-1. **Square** - Simple warm-up level
-2. **Triangle** - Basic geometric shape
-3. **Cat** - Cute feline silhouette
-4. **House** - Classic house shape
-5. **Bird** - Flying bird in profile
-6. **Boat** - Sailboat on water
-7. **Running Person** - Human figure in motion
-8. **Fish** - Swimming fish
-9. **Candle** - Lit candle
-10. **Rabbit** - Bunny with long ears
-
 ## Technical Details
 
 - **Graphics API**: OpenGL 3.3 Core Profile
@@ -142,16 +146,24 @@ Tangram/
 - **Rendering**: Vertex Array Objects (VAO) and Index Buffer Objects (IBO)
 - **Shaders**: GLSL vertex and fragment shaders
 - **Architecture**: Layer-based design with polymorphic shape system
+- **Snapping System**: Position-based with auto-correction for rotation and flip
+- **Ghost Rendering**: Semi-transparent overlays using shader uniform colors
+
+## Development Tools
+
+- **Position Capture ('P' key)**: Prints current piece positions in C++ format for easy level creation
+- **Solution Checking ('C' key)**: Verifies all pieces are correctly locked
 
 ## Notes
 
-- The program is designed to work with Wayland Hyprland but also supports X11
-- Shader files must be in the `shaders/` directory relative to where the executable is run
-- All transformations (rotate, translate, flip) are applied using transformation matrices
-- The solution checking system uses position-based validation with tolerance
+- The program works with both Wayland Hyprland and X11
+- Shader files must be in the `shaders/` directory relative to the executable
+- All transformations use GLM transformation matrices
+- Ghost pieces only appear for unlocked pieces
+- Snapping tolerance: 0.25 units for position, auto-corrects rotation and flip
 
 ## Credits
 
 Built using OpenGL, GLFW, and GLM. Inspired by the traditional Chinese Tangram puzzle.
 
-Enjoy solving the puzzles! 🧩
+Enjoy solving the puzzles! 🧩✨

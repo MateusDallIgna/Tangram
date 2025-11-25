@@ -89,6 +89,17 @@ void GameLayer::InitializePieces() {
     
     // 1 Parallelogram
     m_Pieces.push_back(new TangramParallelogram(startX, startY - spacing * 6, 0.707f, 1.0f, 0.5f, 0.0f));  // Orange
+    
+    // DEBUG: Print piece information
+    std::cout << "\n=== PIECE GEOMETRY DEBUG ===" << std::endl;
+    const char* names[] = {"LT-Red", "LT-Green", "MT-Blue", "ST-Yellow", "ST-Magenta", "Sq-Cyan", "Para-Orange"};
+    for (size_t i = 0; i < m_Pieces.size(); ++i) {
+        glm::vec2 localCenter = m_Pieces[i]->GetLocalCenter();
+        glm::vec2 worldCenter = m_Pieces[i]->GetCenter();
+        std::cout << i << ". " << names[i] << ": LocalCenter(" << localCenter.x << ", " << localCenter.y << ")" 
+                  << " WorldCenter(" << worldCenter.x << ", " << worldCenter.y << ")" << std::endl;
+    }
+    std::cout << "===========================\n" << std::endl;
 }
 
 void GameLayer::OnRender() {
@@ -101,7 +112,10 @@ void GameLayer::OnRender() {
     m_Shader.SetUniformMat4f("u_View", view);
     
     // Render silhouette outline (shows target shape border)
-    RenderSilhouette();
+    // RenderSilhouette();  // DISABLED - only using ghost pieces now
+    
+    // Render ghost pieces showing target positions (only for unlocked pieces)
+    RenderDynamicSilhouette();
     
     // Reset color override for pieces
     m_Shader.SetUniform1i("u_UseUniformColor", 0);
@@ -122,12 +136,17 @@ void GameLayer::RenderSilhouette() {
 
 void GameLayer::RenderDynamicSilhouette() {
     m_Shader.SetUniform1i("u_UseUniformColor", 1);
-    m_Shader.SetUniform4f("u_Color", 0.5f, 0.5f, 0.5f, 0.5f); // Gray
+    m_Shader.SetUniform4f("u_Color", 0.3f, 0.3f, 0.3f, 0.3f); // Semi-transparent gray
     
     const auto& solution = m_CurrentLevel->GetSolution();
     for (const auto& target : solution) {
         if (target.pieceIndex >= 0 && target.pieceIndex < (int)m_Pieces.size()) {
             TangramPiece* piece = m_Pieces[target.pieceIndex];
+            
+            // Only show ghost for unlocked pieces
+            if (piece->IsLocked()) {
+                continue;
+            }
             
             glm::vec2 localCenter = piece->GetLocalCenter();
             
@@ -271,8 +290,11 @@ void GameLayer::OnKeyEvent(int key, int /*scancode*/, int action, int mods) {
         }
         
         case GLFW_KEY_R: {
-            ResetLevel();
-            std::cout << "Level reset" << std::endl;
+            if (m_SelectedPiece != nullptr && !m_SelectedPiece->IsLocked()) {
+                float rotationAngle = glm::radians(45.0f);  // 45 degrees in radians
+                m_SelectedPiece->Rotate(rotationAngle);
+                std::cout << "Rotated piece by 45 degrees" << std::endl;
+            }
             break;
         }
         
@@ -312,6 +334,28 @@ void GameLayer::OnKeyEvent(int key, int /*scancode*/, int action, int mods) {
             }
             break;
         }
+        
+        case GLFW_KEY_P: {
+            // Print current piece positions in C++ format for solution
+            std::cout << "\n=== CURRENT PIECE POSITIONS ===" << std::endl;
+            std::cout << "std::vector<PiecePosition> solution = {" << std::endl;
+            const char* names[] = {"LT-Red", "LT-Green", "MT-Blue", "ST-Yellow", "ST-Magenta", "Sq-Cyan", "Para-Orange"};
+            for (size_t i = 0; i < m_Pieces.size(); ++i) {
+                glm::vec2 center = m_Pieces[i]->GetCenter();
+                float rotation = m_Pieces[i]->GetRotation();
+                bool flipped = m_Pieces[i]->IsFlipped();
+                
+                std::cout << "    // " << names[i] << std::endl;
+                std::cout << "    {" << i << ", glm::vec2(" << center.x << "f, " << center.y << "f), "
+                          << "glm::radians(" << glm::degrees(rotation) << "f), " 
+                          << (flipped ? "true" : "false") << "}";
+                if (i < m_Pieces.size() - 1) std::cout << ",";
+                std::cout << std::endl;
+            }
+            std::cout << "};" << std::endl;
+            std::cout << "================================\n" << std::endl;
+            break;
+        }
     }
 }
 
@@ -331,8 +375,8 @@ void GameLayer::OnMouseButtonEvent(int button, int action, int mods, double mous
         if (m_IsTranslating) {
             m_IsTranslating = false;
             
-            // Snapping Logic
-            if (m_SelectedPiece != nullptr) {
+            // Target-based Snapping Logic
+            if (m_SelectedPiece != nullptr && !m_SelectedPiece->IsLocked()) {
                 int pieceIndex = -1;
                 for (size_t i = 0; i < m_Pieces.size(); ++i) {
                     if (m_Pieces[i] == m_SelectedPiece) {
@@ -342,22 +386,72 @@ void GameLayer::OnMouseButtonEvent(int button, int action, int mods, double mous
                 }
                 
                 if (pieceIndex != -1) {
-                    // Grid Snapping Logic
-                    // Snap to grid of size U/4 = 0.7071 / 4 = 0.17677
-                    float gridSize = 0.176776695f;
+                    // Find the target position for this piece
+                    const auto& solution = m_CurrentLevel->GetSolution();
+                    const PiecePosition* targetPos = nullptr;
                     
-                    glm::vec2 currentPos = m_SelectedPiece->GetCenter();
+                    for (const auto& target : solution) {
+                        if (target.pieceIndex == pieceIndex) {
+                            targetPos = &target;
+                            break;
+                        }
+                    }
                     
-                    // Calculate snapped position
-                    float snappedX = round(currentPos.x / gridSize) * gridSize;
-                    float snappedY = round(currentPos.y / gridSize) * gridSize;
-                    
-                    // Apply snap if close enough (within half grid size)
-                    if (glm::distance(currentPos, glm::vec2(snappedX, snappedY)) < gridSize * 0.6f) {
-                        float dx = snappedX - currentPos.x;
-                        float dy = snappedY - currentPos.y;
-                        m_SelectedPiece->Translate(dx, dy);
-                        // std::cout << "Snapped to grid!" << std::endl;
+                    if (targetPos != nullptr) {
+                        glm::vec2 currentCenter = m_SelectedPiece->GetCenter();
+                        float currentRotation = m_SelectedPiece->GetRotation();
+                        bool currentFlipped = m_SelectedPiece->IsFlipped();
+                        
+                        // Check distance threshold (0.1f as suggested)
+                        float distance = glm::distance(currentCenter, targetPos->position);
+                        
+                        // Normalize rotations to [0, 2π) for comparison
+                        float normalizedCurrent = fmod(currentRotation, 2.0f * M_PI);
+                        if (normalizedCurrent < 0) normalizedCurrent += 2.0f * M_PI;
+                        
+                        float normalizedTarget = fmod(targetPos->rotation, 2.0f * M_PI);
+                        if (normalizedTarget < 0) normalizedTarget += 2.0f * M_PI;
+                        
+                        // Check rotation difference (allowing for ±5 degrees = ~0.087 radians)
+                        float rotationDiff = fabs(normalizedCurrent - normalizedTarget);
+                        // Handle wrap-around (e.g., 359° vs 1°)
+                        if (rotationDiff > M_PI) {
+                            rotationDiff = 2.0f * M_PI - rotationDiff;
+                        }
+                        
+                        // Relaxed tolerances for easier gameplay
+                        float distanceTolerance = 0.25f;  // Only check distance!
+                        
+                        // Debug output
+                        std::cout << "Piece " << pieceIndex << " - Distance: " << distance 
+                                  << " (threshold: " << distanceTolerance << ")"
+                                  << std::endl;
+                        
+                        // ONLY check position - auto-correct rotation and flip!
+                        if (distance < distanceTolerance) {
+                            
+                            // Snap to exact target position
+                            glm::vec2 offset = targetPos->position - currentCenter;
+                            m_SelectedPiece->Translate(offset.x, offset.y);
+                            
+                            // Auto-correct rotation to exact target
+                            float rotationAdjustment = targetPos->rotation - currentRotation;
+                            // Normalize to shortest path
+                            while (rotationAdjustment > M_PI) rotationAdjustment -= 2.0f * M_PI;
+                            while (rotationAdjustment < -M_PI) rotationAdjustment += 2.0f * M_PI;
+                            m_SelectedPiece->Rotate(rotationAdjustment);
+                            
+                            // Auto-correct flip state if needed
+                            if (currentFlipped != targetPos->isFlipped) {
+                                m_SelectedPiece->Flip();
+                            }
+                            
+                            // Lock the piece and change color to green
+                            m_SelectedPiece->SetLocked(true);
+                            m_SelectedPiece->SetColor(0.0f, 1.0f, 0.0f);  // Green
+                            
+                            std::cout << "Piece " << pieceIndex << " locked in place! (auto-corrected rotation and flip)" << std::endl;
+                        }
                     }
                 }
             }
@@ -411,49 +505,16 @@ void GameLayer::ResetLevel() {
 }
 
 bool GameLayer::CheckSolution() {
-    // Check if all pieces are inside the silhouette outline
-    // This allows any valid configuration to win
+    // Check if all 7 pieces are locked (correctly placed)
+    // With the new snapping system, pieces only lock when they're in the correct position
     
-    const auto& silhouetteVerts = m_CurrentLevel->GetSilhouetteVertices();
-    if (silhouetteVerts.empty()) {
-        return false;
-    }
-    
-    // Check each piece
+    int lockedCount = 0;
     for (TangramPiece* piece : m_Pieces) {
-        // Get piece vertices in world space
-        const auto& vertices = piece->GetVertices();
-        glm::mat4 model = piece->GetModelMatrix();
-        
-        // Check if all vertices of this piece are inside the silhouette
-        for (size_t i = 0; i < vertices.size(); i += 6) {  // 6 floats per vertex (x, y, r, g, b, a)
-            glm::vec4 vertex(vertices[i], vertices[i+1], 0.0f, 1.0f);
-            glm::vec4 worldVertex = model * vertex;
-            
-            // Simple bounding box check - piece must be roughly inside outline bounds
-            bool insideBounds = false;
-            float minX = 1000.0f, maxX = -1000.0f, minY = 1000.0f, maxY = -1000.0f;
-            
-            for (const auto& v : silhouetteVerts) {
-                minX = std::min(minX, v.x);
-                maxX = std::max(maxX, v.x);
-                minY = std::min(minY, v.y);
-                maxY = std::max(maxY, v.y);
-            }
-            
-            // Add small tolerance
-            float tolerance = 0.2f;
-            if (worldVertex.x >= minX - tolerance && worldVertex.x <= maxX + tolerance &&
-                worldVertex.y >= minY - tolerance && worldVertex.y <= maxY + tolerance) {
-                insideBounds = true;
-            }
-            
-            if (!insideBounds) {
-                return false;  // At least one vertex is outside
-            }
+        if (piece->IsLocked()) {
+            lockedCount++;
         }
     }
     
-    // All pieces are inside the outline
-    return true;
+    // All 7 pieces must be locked
+    return lockedCount == 7;
 }

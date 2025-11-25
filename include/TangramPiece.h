@@ -36,7 +36,11 @@ public:
     bool IsLocked() const { return m_IsLocked; }
     bool IsFlipped() const { return m_IsFlipped; }
     
+    // Get current rotation angle in radians
+    virtual float GetRotation() const = 0;
+    
 protected:
     bool m_IsLocked = false;
     bool m_IsFlipped = false;
+    float m_CurrentRotation = 0.0f;  // Track cumulative rotation in radians
 };

@@ -39,6 +39,7 @@ public:
     virtual glm::vec2 GetCenter() const override;
     virtual glm::vec2 GetLocalCenter() const override;
     virtual const std::vector<float>& GetVertices() const override;
+    float GetRotation() const override { return m_CurrentRotation; }
     
 private:
     void InitializeVertices(float x, float y, float size);
@@ -53,4 +54,7 @@ private:
     
     glm::mat4 m_ModelMatrix;
     glm::mat4 m_OriginalModelMatrix;
+    
+    // Store original color for reset
+    float m_OriginalR, m_OriginalG, m_OriginalB;
 };
